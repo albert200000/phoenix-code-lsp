@@ -59,9 +59,7 @@ define(function (require, exports, module) {
     }
 
     function createNodeInterfaceForNodeConnector(languageClientNodeConnector) {
-        var nodeInterface = new BracketsToNodeInterface(languageClientNodeConnector);
-
-        return nodeInterface;
+        return new BracketsToNodeInterface(languageClientNodeConnector);
     }
 
     function _clientLoader(clientName, clientPromise) {
@@ -73,10 +71,14 @@ define(function (require, exports, module) {
         });
     }
 
+    function _initNodeClient(clientName) {
+        clientInfoNodeConnector.execPeer("initClient", { clientName, serverOptions: {} });
+    }
+
     function initiateLanguageClient(clientName) {
         var result = $.Deferred();
 
-        initNodeClient(clientName);
+        _initNodeClient(clientName);
 
         //Only load clients after the LanguageClient Info has been initialized
         if (!clientInfoLoadedPromise || clientInfoLoadedPromise.state() === "pending") {
@@ -122,14 +124,11 @@ define(function (require, exports, module) {
             } else {
                 exports.trigger("languageClientModuleInitialized");
             }
+
             pendingClientsToBeLoaded = null;
         }, function () {
             logInitializationError();
         });
-    }
-
-    function initNodeClient(clientName) {
-        clientInfoNodeConnector.execPeer("initClient", { clientName, serverOptions: {} });
     }
 
     sendLanguageClientInfo();

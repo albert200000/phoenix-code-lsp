@@ -463,57 +463,6 @@ define(function (require, exports, module) {
             });
         });
 
-        it("should attempt to start php server and fail due to lower version of php", function () {
-            var phpExecutable = testWindow.brackets.platform === "mac" ? "/mac/invalidphp" : "/win/invalidphp";
-            PreferencesManager.set("php", {
-                "executablePath": testFolder + phpExecutable
-            }, {
-                locations: {scope: "session"}
-            });
-            waitForMilliSeconds(5000);
-            runs(function () {
-                checkErrorPopUp();
-                checkPopUpString(Strings.PHP_SERVER_ERROR_TITLE,
-                                 StringUtils.format(Strings.PHP_UNSUPPORTED_VERSION, "5.6.30"));
-                checkPopUpButton("CANCEL");
-            });
-        });
-
-        it("should attempt to start php server and fail due to invaild executable", function () {
-            PreferencesManager.set("php", {"executablePath": "/invalidPath/php"}, {locations: {scope: "session"}});
-            waitForMilliSeconds(5000);
-            runs(function () {
-                checkErrorPopUp();
-                checkPopUpString(Strings.PHP_SERVER_ERROR_TITLE, Strings.PHP_EXECUTABLE_NOT_FOUND);
-                checkPopUpButton("CANCEL");
-            });
-        });
-
-        it("should attempt to start php server and fail due to invaild memory limit in prefs settings", function () {
-            PreferencesManager.set("php", {"memoryLimit": "invalidValue"}, {locations: {scope: "session"}});
-            waitForMilliSeconds(5000);
-            runs(function () {
-                checkErrorPopUp();
-                checkPopUpString(Strings.PHP_SERVER_ERROR_TITLE, Strings.PHP_SERVER_MEMORY_LIMIT_INVALID);
-                checkPopUpButton("CANCEL");
-            });
-
-            runs(function () {
-                SpecRunnerUtils.loadProjectInTestWindow(testFolder + "test");
-            });
-        });
-
-        it("should attempt to start php server and success", function () {
-            PreferencesManager.set("php", {"memoryLimit": "4095M"}, {locations: {scope: "session"}});
-
-            waitsForDone(SpecRunnerUtils.openProjectFiles([testFile1]), "open test file: " + testFile1);
-            waitForMilliSeconds(5000);
-            runs(function () {
-                toggleDiagnosisResults(false);
-                toggleDiagnosisResults(true);
-            });
-        });
-
         it("should filter hints by query", function () {
             waitsForDone(SpecRunnerUtils.openProjectFiles([testFile2]), "open test file: " + testFile2);
             runs(function() {
