@@ -50,10 +50,10 @@ define(function (require, exports, module) {
     var DEBUG_OPEN_PREFERENCES_IN_SPLIT_VIEW  = "debug.openPrefsInSplitView";
 
     function ClientHandler() {
-        this.clientName = "PhpClient",
+        this._lang = "",
         this._client = null,
         this.evtHandler,
-        this.phpServerRunning = false,
+        this.lspServerRunning = false,
         this.serverCapabilities,
         this.currentRootPath,
         this.chProvider = null,
@@ -78,12 +78,12 @@ define(function (require, exports, module) {
         } else {
             this._client.restart({
                 rootPath: directory.fullPath
-            }).done(this.handlePostPhpServerStart);
+            }).done(this.handlePostLspServerStart);
         }
     };
 
     ClientHandler.prototype.resetClientInProviders = function () {
-        var logErr = "PhpTooling: Can't reset client for : ";
+        var logErr = "LspTooling: Can't reset client for : ";
         this.chProvider ? this.chProvider.setClient(this._client) : console.log(logErr, "CodeHintsProvider");
         this.phProvider ? this.phProvider.setClient(this._client) : console.log(logErr, "ParameterHintsProvider");
         this.jdProvider ? this.jdProvider.setClient(this._client) : console.log(logErr, "JumpToDefProvider");
@@ -103,20 +103,20 @@ define(function (require, exports, module) {
         this.pSymProvider = new SymbolProviders.ProjectSymbolsProvider(this._client);
         this.refProvider = new DefaultProviders.ReferencesProvider(this._client);
 
-        JumpToDefManager.registerJumpToDefProvider(this.jdProvider, ["php"], 0);
-        CodeHintManager.registerHintProvider(this.chProvider, ["php"], 0);
-        ParameterHintManager.registerHintProvider(this.phProvider, ["php"], 0);
-        FindReferencesManager.registerFindReferencesProvider(this.refProvider, ["php"], 0);
+        JumpToDefManager.registerJumpToDefProvider(this.jdProvider, [this._lang], 0);
+        CodeHintManager.registerHintProvider(this.chProvider, [this._lang], 0);
+        ParameterHintManager.registerHintProvider(this.phProvider, [this._lang], 0);
+        FindReferencesManager.registerFindReferencesProvider(this.refProvider, [this._lang], 0);
         FindReferencesManager.setMenuItemStateForLanguage();
-        CodeInspection.register(["php"], {
+        CodeInspection.register([this._lang], {
             name: "",
             scanFileAsync: this.lProvider.getInspectionResultsAsync.bind(this.lProvider)
         });
         //Attach plugin for Document Symbols
         QuickOpen.addQuickOpenPlugin({
-            name: "PHP Document Symbols",
+            name: "Document Symbols",
             label: Strings.CMD_FIND_DOCUMENT_SYMBOLS + "\u2026",
-            languageIds: ["php"],
+            languageIds: [this._lang],
             search: this.dSymProvider.search.bind(this.dSymProvider),
             match: this.dSymProvider.match.bind(this.dSymProvider),
             itemFocus: this.dSymProvider.itemFocus.bind(this.dSymProvider),
@@ -126,9 +126,9 @@ define(function (require, exports, module) {
         CommandManager.get(Commands.NAVIGATE_GOTO_DEFINITION).setEnabled(true);
         //Attach plugin for Project Symbols
         QuickOpen.addQuickOpenPlugin({
-            name: "PHP Project Symbols",
+            name: "Project Symbols",
             label: Strings.CMD_FIND_PROJECT_SYMBOLS + "\u2026",
-            languageIds: ["php"],
+            languageIds: [this._lang],
             search: this.pSymProvider.search.bind(this.pSymProvider),
             match: this.pSymProvider.match.bind(this.pSymProvider),
             itemFocus: this.pSymProvider.itemFocus.bind(this.pSymProvider),
@@ -165,7 +165,7 @@ define(function (require, exports, module) {
         }
 
         if(!localizedErrStr) {
-            console.error("Php Tooling Error: " + err);
+            console.error("Tooling Error: " + err);
             return;
         }
 
@@ -178,7 +178,7 @@ define(function (require, exports, module) {
 
         Dialogs.showModalDialog(
             DefaultDialogs.DIALOG_ID_ERROR,
-            Strings.PHP_SERVER_ERROR_TITLE,
+            "Server Error",
             localizedErrStr,
             Buttons
         ).done(function (id) {
@@ -192,9 +192,9 @@ define(function (require, exports, module) {
         });
     };
 
-    ClientHandler.prototype.handlePostPhpServerStart = function () {
-        if (!this.phpServerRunning) {
-            this.phpServerRunning = true;
+    ClientHandler.prototype.handlePostLspServerStart = function () {
+        if (!this.lspServerRunning) {
+            this.lspServerRunning = true;
 
             if (this.providersRegistered) {
                 this.resetClientInProviders();
@@ -203,19 +203,19 @@ define(function (require, exports, module) {
             }
 
             this.addEventHandlers();
-            EditorManager.off("activeEditorChange.php");
-            LanguageManager.off("languageModified.php");
+            EditorManager.off("activeEditorChange." + this._lang);
+            LanguageManager.off("languageModified." + this._lang);
         }
 
         this.evtHandler.handleActiveEditorChange(null, EditorManager.getActiveEditor());
         this.currentRootPath = ProjectManager.getProjectRoot()._path;
     };
 
-    ClientHandler.prototype.runPhpServer = function () {
+    ClientHandler.prototype.runLspServer = function () {
         if (this._client) {
             var startFunc = this._client.start.bind(this._client);
 
-            if (this.phpServerRunning) {
+            if (this.lspServerRunning) {
                 startFunc = this._client.restart.bind(this._client);
             }
 
@@ -224,9 +224,9 @@ define(function (require, exports, module) {
             startFunc({
                 rootPath: this.currentRootPath
             }).done(function (result) {
-                console.log("php Language Server started");
+                console.log("Language Server started");
                 this.serverCapabilities = result.capabilities;
-                this.handlePostPhpServerStart();
+                this.handlePostLspServerStart();
             });
         }
     };
@@ -234,33 +234,34 @@ define(function (require, exports, module) {
     ClientHandler.prototype.activeEditorChangeHandler = function (event, current) {
         if (current) {
             var language = current.document.getLanguage();
-            if (language.getId() === "php") {
-                this.runPhpServer();
-                EditorManager.off("activeEditorChange.php");
-                LanguageManager.off("languageModified.php");
+            if (language.getId() === this._lang) {
+                this.runLspServer();
+                EditorManager.off("activeEditorChange." + this._lang);
+                LanguageManager.off("languageModified." + this._lang);
             }
         }
     };
 
     ClientHandler.prototype.languageModifiedHandler = function (event, language) {
-        if (language && language.getId() === "php") {
-            this.runPhpServer();
-            EditorManager.off("activeEditorChange.php");
-            LanguageManager.off("languageModified.php");
+        if (language && language.getId() === this._lang) {
+            this.runLspServer();
+            EditorManager.off("activeEditorChange." + this._lang);
+            LanguageManager.off("languageModified." + this._lang);
         }
     };
 
-    ClientHandler.prototype.init = function () {
-        this.phpServerRunning = false;
+    ClientHandler.prototype.init = function (config) {
+        this.lspServerRunning = false;
+        this._lang = config.lang;
 
-        LanguageTools.initiateToolingService(this.clientName, ['php']).done(function (client) {
+        LanguageTools.initiateToolingService(config.lang, [config.lang]).done(function (client) {
             this._client = client;
             //Attach only once
-            EditorManager.off("activeEditorChange.php");
-            EditorManager.on("activeEditorChange.php", this.activeEditorChangeHandler);
+            EditorManager.off("activeEditorChange." + config.lang);
+            EditorManager.on("activeEditorChange." + config.lang, this.activeEditorChangeHandler);
             //Attach only once
-            LanguageManager.off("languageModified.php");
-            LanguageManager.on("languageModified.php", this.languageModifiedHandler);
+            LanguageManager.off("languageModified." + config.lang);
+            LanguageManager.on("languageModified." + config.lang, this.languageModifiedHandler);
             this.activeEditorChangeHandler(null, EditorManager.getActiveEditor());
         });
     };
@@ -272,7 +273,26 @@ define(function (require, exports, module) {
             console.log("LSP tooling: Something went wrong. Restarting the service");
         }
 
-        // TODO: create ClientHandler and call init
+        var lspPrefs = {};
+        var lspLanguages = [];
+
+        PreferencesManager.definePreference("lsp", "object", lspPrefs, {
+            description: "LSP general configuration"
+        });
+
+        PreferencesManager.definePreference("lsp.languages", "array", lspLanguages, {
+            description: "LSP languages configuration: { \"lang\": \"php\", \"cmd\": \"phpactor language-server\" }"
+        });
+
+        PreferencesManager.on("change", "lsp", function () {
+            lspPrefs = PreferencesManager.get("lsp");
+            // TODO: this
+        });
+
+        lspLanguages.forEach(function (config) {
+            var clientHandler = new ClientHandler();
+            clientHandler.init(config);
+        })
     };
 
     exports.initiateService = initiateService;
