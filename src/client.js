@@ -23,8 +23,8 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var LanguageTools = require("languageTools/LanguageTools"),
-        ClientLoader = require("languageTools/ClientLoader"),
+    var LanguageTools = require("./languageTools/LanguageTools"),
+        ClientLoader = require("./languageTools/ClientLoader"),
         PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
         ExtensionUtils = brackets.getModule("utils/ExtensionUtils"),
         ProjectManager = brackets.getModule("project/ProjectManager"),
@@ -36,10 +36,10 @@ define(function (require, exports, module) {
         JumpToDefManager = brackets.getModule("features/JumpToDefManager"),
         FindReferencesManager = brackets.getModule("features/FindReferencesManager"),
         CodeInspection = brackets.getModule("language/CodeInspection"),
-        DefaultProviders = require("languageTools/DefaultProviders"),
-        CodeHintsProvider = require("CodeHintsProvider").CodeHintsProvider,
-        SymbolProviders = require("PHPSymbolProviders").SymbolProviders,
-        DefaultEventHandlers = require("languageTools/DefaultEventHandlers"),
+        DefaultProviders = require("./languageTools/DefaultProviders"),
+        CodeHintsProvider = require("./CodeHintsProvider").CodeHintsProvider,
+        SymbolProviders = require("./PHPSymbolProviders").SymbolProviders,
+        DefaultEventHandlers = require("./languageTools/DefaultEventHandlers"),
         Strings             = brackets.getModule("strings"),
         Dialogs             = brackets.getModule("widgets/Dialogs"),
         DefaultDialogs      = brackets.getModule("widgets/DefaultDialogs"),

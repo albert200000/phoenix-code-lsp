@@ -30,7 +30,7 @@ define(function (require, exports, module) {
         QuickOpen = brackets.getModule("search/QuickOpen"),
         Commands = brackets.getModule("command/Commands"),
         CommandManager = brackets.getModule("command/CommandManager"),
-        PathConverters = brackets.getModule("languageTools/PathConverters");
+        PathConverters = require("./languageTools/PathConverters");
 
     var SymbolKind = QuickOpen.SymbolKind;
 

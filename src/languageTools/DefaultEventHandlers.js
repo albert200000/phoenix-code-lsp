@@ -26,9 +26,9 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var LanguageManager = require("language/LanguageManager"),
-        ProjectManager = require("project/ProjectManager"),
-        PathConverters = require("languageTools/PathConverters");
+    var LanguageManager = brackets.getModule("language/LanguageManager"),
+        ProjectManager = brackets.getModule("project/ProjectManager"),
+        PathConverters = require("./PathConverters");
 
     function EventPropagationProvider(client) {
         this.client = client;

@@ -25,8 +25,8 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var PathUtils = require("thirdparty/path-utils/path-utils"),
-        FileUtils = require("file/FileUtils");
+    var PathUtils = brackets.getModule("thirdparty/path-utils/path-utils"),
+        FileUtils = brackets.getModule("file/FileUtils");
 
     function uriToPath(uri) {
         var url = PathUtils.parseUrl(uri);

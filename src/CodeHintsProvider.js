@@ -28,7 +28,7 @@ define(function (require, exports, module) {
 
     var _ = brackets.getModule("thirdparty/lodash");
 
-    var DefaultProviders = brackets.getModule("languageTools/DefaultProviders"),
+    var DefaultProviders = require("./languageTools/DefaultProviders"),
         EditorManager = brackets.getModule('editor/EditorManager'),
         TokenUtils = brackets.getModule("utils/TokenUtils"),
         StringMatch = brackets.getModule("utils/StringMatch"),
@@ -36,7 +36,7 @@ define(function (require, exports, module) {
             preferPrefixMatches: true
         });
 
-    var phpSuperGlobalVariables = JSON.parse(require("text!phpGlobals.json")),
+    var phpSuperGlobalVariables = JSON.parse(require("text!./phpGlobals.json")),
         hintType = {
              "2": "Method",
              "3": "Function",

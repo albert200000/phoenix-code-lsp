@@ -1,6 +1,7 @@
 {
     "title": "Phoenix Code LSP",
     "name": "github-albert200000-phoenix-code-lsp",
+    "description": "LSP client for Phoenix Code",
     "version": "0.0.1",
     "license": "MIT",
     "author": "Albert (https://github.com/albert200000)",
@@ -11,9 +12,6 @@
     "categories": "demo",
     "keywords": [
         "lsp"
-    ],
-    "files": [
-        "src/main.js"
     ],
     "nodeConfig": {
         "nodeIsRequired": true,

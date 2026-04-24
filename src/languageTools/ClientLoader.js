@@ -26,10 +26,10 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var ToolingInfo = JSON.parse(require("text!languageTools/ToolingInfo.json")),
-        FileUtils = require("file/FileUtils"),
-        EventDispatcher = require("utils/EventDispatcher"),
-        BracketsToNodeInterface = require("languageTools/BracketsToNodeInterface").BracketsToNodeInterface,
+    var ToolingInfo = JSON.parse(require("text!./ToolingInfo.json")),
+        FileUtils = brackets.getModule("file/FileUtils"),
+        EventDispatcher = brackets.getModule("utils/EventDispatcher"),
+        BracketsToNodeInterface = require("./BracketsToNodeInterface").BracketsToNodeInterface,
         NodeConnector = brackets.getModule("NodeConnector");
 
     EventDispatcher.makeEventDispatcher(exports);

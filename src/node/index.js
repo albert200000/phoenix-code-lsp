@@ -1,16 +1,4 @@
-/**
- * This is an optional node extension that is available only in desktop builds. This code will be run in node. You can
- * bring in any third party node modules using package.json in folder `node/package.json`
- *
- * nb: Please note that you should not package `node_modules` folder when you care creating the extension zip file.
- * Zip `node/package-lock.json`, but not node modules.
- *
- * To communicate between this node file and the phoenix extension use: NodeConnector-API -
- * See. https://docs.phcode.dev/api/API-Reference/NodeConnector for detailed docs.
- **/
-console.log("hello world node extension");
-
-var LanguageClient = require(global.LanguageClientInfo.languageClientPath).LanguageClient,
+var LanguageClient = require("./LanguageClient/LanguageClient").LanguageClient,
     LANGUAGE_CLIENT_RELATIVE_PATH_ARRAY = ["languageTools", "LanguageClient", "LanguageClient"],
     FORWARD_SLASH = "/",
     BACKWARD_SLASH = "\\",
@@ -213,7 +201,7 @@ function syncPreferences(prefs) {
     global.LanguageClientInfo.preferences = prefs || global.LanguageClientInfo.preferences || {};
 }
 
-function initialize(data) {
+function initializePreferences(data) {
     var bracketsSourcePath = data.bracketsSourcePath;
     var toolingInfo = data.toolingInfo;
 

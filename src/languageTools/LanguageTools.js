@@ -27,14 +27,14 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var ClientLoader = require("languageTools/ClientLoader"),
-        EditorManager = require("editor/EditorManager"),
-        ProjectManager = require("project/ProjectManager"),
-        DocumentManager = require("document/DocumentManager"),
-        DocumentModule = require("document/Document"),
-        PreferencesManager = require("preferences/PreferencesManager"),
-        Strings = require("strings"),
-        LanguageClientWrapper = require("languageTools/LanguageClientWrapper").LanguageClientWrapper;
+    var ClientLoader = require("./ClientLoader"),
+        EditorManager = brackets.getModule("editor/EditorManager"),
+        ProjectManager = brackets.getModule("project/ProjectManager"),
+        DocumentManager = brackets.getModule("document/DocumentManager"),
+        DocumentModule = brackets.getModule("document/Document"),
+        PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
+        Strings = brackets.getModule("strings"),
+        LanguageClientWrapper = require("./LanguageClientWrapper").LanguageClientWrapper;
 
     var languageClients = new Map(),
         languageToolsPrefs = {

@@ -27,7 +27,7 @@
 define(function (require, exports, module) {
     "use strict";
 
-    var ToolingInfo = JSON.parse(require("text!languageTools/ToolingInfo.json")),
+    var ToolingInfo = JSON.parse(require("text!./ToolingInfo.json")),
         MESSAGE_FORMAT = {
             BRACKETS: "brackets",
             LSP: "lsp"

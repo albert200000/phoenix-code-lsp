@@ -29,15 +29,15 @@ define(function (require, exports, module) {
 
     var _ = brackets.getModule("thirdparty/lodash");
 
-    var EditorManager = require('editor/EditorManager'),
-        DocumentManager = require('document/DocumentManager'),
-        ExtensionUtils = require("utils/ExtensionUtils"),
-        CommandManager = require("command/CommandManager"),
-        Commands = require("command/Commands"),
-        TokenUtils = require("utils/TokenUtils"),
-        StringMatch = require("utils/StringMatch"),
-        CodeInspection = require("language/CodeInspection"),
-        PathConverters = require("languageTools/PathConverters"),
+    var EditorManager = brackets.getModule('editor/EditorManager'),
+        DocumentManager = brackets.getModule('document/DocumentManager'),
+        ExtensionUtils = brackets.getModule("utils/ExtensionUtils"),
+        CommandManager = brackets.getModule("command/CommandManager"),
+        Commands = brackets.getModule("command/Commands"),
+        TokenUtils = brackets.getModule("utils/TokenUtils"),
+        StringMatch = brackets.getModule("utils/StringMatch"),
+        CodeInspection = brackets.getModule("language/CodeInspection"),
+        PathConverters = brackets.getModule("languageTools/PathConverters"),
         matcher = new StringMatch.StringMatcher({
             preferPrefixMatches: true
         });
