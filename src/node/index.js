@@ -1,5 +1,6 @@
+global.LanguageClientInfo = global.LanguageClientInfo || {};
+
 var LanguageClient = require("./LanguageClient/LanguageClient").LanguageClient,
-    LANGUAGE_CLIENT_RELATIVE_PATH_ARRAY = ["languageTools", "LanguageClient", "LanguageClient"],
     FORWARD_SLASH = "/",
     BACKWARD_SLASH = "\\",
     CompletionItemKind = {
@@ -196,12 +197,12 @@ var LanguageClient = require("./LanguageClient/LanguageClient").LanguageClient,
         }
     };
 
-function syncPreferences(prefs) {
+async function syncPreferences(prefs) {
     global.LanguageClientInfo = global.LanguageClientInfo || {};
     global.LanguageClientInfo.preferences = prefs || global.LanguageClientInfo.preferences || {};
 }
 
-function initializePreferences(data) {
+async function initializePreferences(data) {
     var bracketsSourcePath = data.bracketsSourcePath;
     var toolingInfo = data.toolingInfo;
 
@@ -210,11 +211,9 @@ function initializePreferences(data) {
     }
 
     var normalizedBracketsSourcePath = bracketsSourcePath.split(BACKWARD_SLASH).join(FORWARD_SLASH),
-        bracketsSourcePathArray = normalizedBracketsSourcePath.split(FORWARD_SLASH),
-        languageClientAbsolutePath = bracketsSourcePathArray.concat(LANGUAGE_CLIENT_RELATIVE_PATH_ARRAY).join(FORWARD_SLASH);
+        bracketsSourcePathArray = normalizedBracketsSourcePath.split(FORWARD_SLASH);
 
     global.LanguageClientInfo = global.LanguageClientInfo || {};
-    global.LanguageClientInfo.languageClientPath = languageClientAbsolutePath;
     global.LanguageClientInfo.defaultBracketsCapabilities = defaultBracketsCapabilities;
     global.LanguageClientInfo.toolingInfo = toolingInfo;
     global.LanguageClientInfo.preferences = {};
@@ -222,7 +221,7 @@ function initializePreferences(data) {
     return true; //resolve with boolean denoting success
 }
 
-function initClient(data) {
+async function initClient(data) {
     var client = new LanguageClient(data.clientName, {
         serverOptions: data.serverOptions
     });

@@ -37,9 +37,6 @@ define(function (require, exports, module) {
         LanguageClientWrapper = require("./LanguageClientWrapper").LanguageClientWrapper;
 
     var languageClients = new Map(),
-        languageToolsPrefs = {
-            showServerLogsInConsole: false
-        },
         BRACKETS_EVENTS_NAMES = {
             EDITOR_CHANGE_EVENT: "activeEditorChange",
             PROJECT_OPEN_EVENT: "projectOpen",
@@ -50,14 +47,16 @@ define(function (require, exports, module) {
             BEFORE_APP_CLOSE: "beforeAppClose"
         };
 
-    PreferencesManager.definePreference("languageTools", "object", languageToolsPrefs, {
-        description: Strings.LANGUAGE_TOOLS_PREFERENCES
+    PreferencesManager.definePreference("lsp", "object", {}, {
+        description: "LSP general configuration"
     });
 
-    PreferencesManager.on("change", "languageTools", function () {
-        languageToolsPrefs = PreferencesManager.get("languageTools");
+    PreferencesManager.definePreference("lsp.languages", "array", [], {
+        description: "LSP languages configuration: [{ \"lang\": \"php\", \"command\": \"phpactor\", \"args\": \"language-server\" }]"
+    });
 
-        ClientLoader.syncPrefsWithDomain(languageToolsPrefs);
+    PreferencesManager.on("change", "lsp", function () {
+        ClientLoader.syncPrefsWithDomain(PreferencesManager.get("lsp"));
     });
 
     function registerLanguageClient(clientName, languageClient) {

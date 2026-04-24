@@ -31,7 +31,6 @@ var ProtocolAdapter = require("./ProtocolAdapter"),
     ServerUtils = require("./ServerUtils"),
     Connection = require("./Connection"),
     NodeToBracketsInterface = require("./NodeToBracketsInterface").NodeToBracketsInterface,
-    ToolingInfo = LanguageClientInfo.toolingInfo,
     MESSAGE_TYPE = {
         BRACKETS: "brackets",
         SERVER: "server"
@@ -61,10 +60,8 @@ function LanguageClient(clientName, options) {
     this._onNotificationHandlers = {};
     this._options = options || null;
 
-
     this._init();
 }
-
 
 LanguageClient.prototype._createConnection = function () {
     if (!this._options || !this._options.serverOptions) {
@@ -207,26 +204,26 @@ LanguageClient.prototype._init = function () {
     //Expose own methods for interfaceing. All these are async except notify.
     this._bracketsInterface.registerMethods([
         {
-            methodName: ToolingInfo.LANGUAGE_SERVICE.START,
+            methodName: LanguageClientInfo.toolingInfo.LANGUAGE_SERVICE.START,
             methodHandle: this.start.bind(this)
         },
         {
-            methodName: ToolingInfo.LANGUAGE_SERVICE.STOP,
+            methodName: LanguageClientInfo.toolingInfo.LANGUAGE_SERVICE.STOP,
             methodHandle: this.stop.bind(this)
         },
         {
-            methodName: ToolingInfo.LANGUAGE_SERVICE.REQUEST,
+            methodName: LanguageClientInfo.toolingInfo.LANGUAGE_SERVICE.REQUEST,
             methodHandle: this.request.bind(this)
         },
         {
-            methodName: ToolingInfo.LANGUAGE_SERVICE.NOTIFY,
+            methodName: LanguageClientInfo.toolingInfo.LANGUAGE_SERVICE.NOTIFY,
             methodHandle: this.notify.bind(this)
         }
     ]);
 
     //create function interfaces for Brackets
-    this._notifyBrackets = this._bracketsInterface.createInterface(ToolingInfo.LANGUAGE_SERVICE.NOTIFY);
-    this._requestBrackets = this._bracketsInterface.createInterface(ToolingInfo.LANGUAGE_SERVICE.REQUEST, true);
+    this._notifyBrackets = this._bracketsInterface.createInterface(LanguageClientInfo.toolingInfo.LANGUAGE_SERVICE.NOTIFY);
+    this._requestBrackets = this._bracketsInterface.createInterface(LanguageClientInfo.toolingInfo.LANGUAGE_SERVICE.REQUEST, true);
 };
 
 exports.LanguageClient = LanguageClient;

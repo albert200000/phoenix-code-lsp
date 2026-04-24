@@ -44,6 +44,7 @@ define(function (require, exports, module) {
             {}
         ),
         clientInfoLoadedPromise = null,
+        clientInfoLoaded = false,
         //Clients that have to be loaded once the LanguageClient info is successfully loaded on the
         //node side.
         pendingClientsToBeLoaded = [];
@@ -81,7 +82,7 @@ define(function (require, exports, module) {
         _initNodeClient(clientName, config);
 
         //Only load clients after the LanguageClient Info has been initialized
-        if (!clientInfoLoadedPromise || clientInfoLoadedPromise.state() === "pending") {
+        if (!clientInfoLoaded) {
             var pendingClient = {
                 load: _clientLoader.bind(null, clientName, result)
             };
@@ -116,6 +117,8 @@ define(function (require, exports, module) {
                 logInitializationError();
                 return;
             }
+
+            clientInfoLoaded = true;
 
             if (Array.isArray(pendingClientsToBeLoaded)) {
                 pendingClientsToBeLoaded.forEach(function (pendingClient) {

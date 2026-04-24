@@ -254,15 +254,17 @@ define(function (require, exports, module) {
         this.lspServerRunning = false;
         this._lang = config.lang;
 
+        var clientHandler = this;
+
         LanguageTools.initiateToolingService(config.lang, [config.lang], config).done(function (client) {
             this._client = client;
             //Attach only once
             EditorManager.off("activeEditorChange." + config.lang);
-            EditorManager.on("activeEditorChange." + config.lang, this.activeEditorChangeHandler);
+            EditorManager.on("activeEditorChange." + config.lang, clientHandler.activeEditorChangeHandler);
             //Attach only once
             LanguageManager.off("languageModified." + config.lang);
-            LanguageManager.on("languageModified." + config.lang, this.languageModifiedHandler);
-            this.activeEditorChangeHandler(null, EditorManager.getActiveEditor());
+            LanguageManager.on("languageModified." + config.lang, clientHandler.languageModifiedHandler);
+            clientHandler.activeEditorChangeHandler(null, EditorManager.getActiveEditor());
         });
     };
 
@@ -273,19 +275,10 @@ define(function (require, exports, module) {
             console.log("LSP tooling: Something went wrong. Restarting the service");
         }
 
-        var lspPrefs = {};
-        var lspLanguages = [];
+        var lspLanguages = PreferencesManager.get("lsp.languages");
 
-        PreferencesManager.definePreference("lsp", "object", lspPrefs, {
-            description: "LSP general configuration"
-        });
-
-        PreferencesManager.definePreference("lsp.languages", "array", lspLanguages, {
-            description: "LSP languages configuration: { \"lang\": \"php\", \"command\": \"phpactor\", \"args\": \"language-server\" }"
-        });
-
-        PreferencesManager.on("change", "lsp", function () {
-            lspPrefs = PreferencesManager.get("lsp");
+        PreferencesManager.on("change", "lsp.languages", function () {
+            lspLanguages = PreferencesManager.get("lsp.languages");
             // TODO: this
         });
 
