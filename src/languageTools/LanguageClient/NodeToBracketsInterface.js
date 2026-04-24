@@ -46,16 +46,16 @@
     }
     /*eslint-enable */
 
-    function NodeToBracketsInterface(domainManager, domainName) {
-        this.domainManager = domainManager;
+    function NodeToBracketsInterface(domainName) {
         this.domainName = domainName;
         this.nodeFn = {};
 
-        this._registerDataEvents(domainManager, domainName);
+        this._registerDataEvents(domainName);
     }
 
     NodeToBracketsInterface.prototype.processRequest = function (params) {
         var methodName = params.method;
+
         if (this.nodeFn[methodName]) {
             var method = this.nodeFn[methodName];
             return method.call(null, params.params);
@@ -64,8 +64,10 @@
 
     NodeToBracketsInterface.prototype.processAsyncRequest = function (params, resolver) {
         var methodName = params.method;
+
         if (this.nodeFn[methodName]) {
             var method = this.nodeFn[methodName];
+
             method.call(null, params.params) //The Async function should return a promise
                 .then(function (result) {
                     resolver(null, result);
@@ -89,6 +91,7 @@
 
     NodeToBracketsInterface.prototype.createInterface = function (methodName, respond) {
         var self = this;
+
         return function (params) {
             var callObject = {
                 method: methodName,
@@ -96,13 +99,14 @@
             };
 
             var retval = undefined;
+
             if (respond) {
                 var requestId = _generateUUID();
 
                 callObject["respond"] = true;
                 callObject["requestId"] = requestId;
 
-                self.domainManager.emitEvent(self.domainName, "data", callObject);
+                self.nodeConnector.triggerPeer("data", callObject);
 
                 retval = new Promise(function (resolve, reject) {
                     bracketsEventHandler.once(requestId, function (err, response) {
@@ -114,14 +118,16 @@
                     });
                 });
             } else {
-                self.domainManager.emitEvent(self.domainName, "data", callObject);
+                self.nodeConnector.triggerPeer("data", callObject);
             }
+
             return retval;
         };
     };
 
     NodeToBracketsInterface.prototype.registerMethod = function (methodName, methodHandle) {
         var self = this;
+
         if (methodName && methodHandle &&
             typeof methodName === "string" && typeof methodHandle === "function") {
             self.nodeFn[methodName] = methodHandle;
@@ -130,83 +136,18 @@
 
     NodeToBracketsInterface.prototype.registerMethods = function (methodList) {
         var self = this;
+
         methodList.forEach(function (methodObj) {
             self.registerMethod(methodObj.methodName, methodObj.methodHandle);
         });
     };
 
-    NodeToBracketsInterface.prototype._registerDataEvents = function (domainManager, domainName) {
-        if (!domainManager.hasDomain(domainName)) {
-            domainManager.registerDomain(domainName, {
-                major: 0,
-                minor: 1
-            });
-        }
+    NodeToBracketsInterface.prototype._registerDataEvents = function (domainName) {
+        this.nodeConnector = global.createNodeConnector(domainName, exports);
 
-        domainManager.registerCommand(
-            domainName,
-            "data",
-            this.processRequest.bind(this),
-            false,
-            "Receives sync request from brackets",
-            [
-                {
-                    name: "params",
-                    type: "object",
-                    description: "json object containing message info"
-                }
-            ],
-            []
-        );
-
-        domainManager.registerCommand(
-            domainName,
-            "response",
-            this.processResponse.bind(this),
-            false,
-            "Receives response from brackets for an earlier request",
-            [
-                {
-                    name: "params",
-                    type: "object",
-                    description: "json object containing message info"
-                }
-            ],
-            []
-        );
-
-        domainManager.registerCommand(
-            domainName,
-            "asyncData",
-            this.processAsyncRequest.bind(this),
-            true,
-            "Receives async call request from brackets",
-            [
-                {
-                    name: "params",
-                    type: "object",
-                    description: "json object containing message info"
-                },
-                {
-                    name: "resolver",
-                    type: "function",
-                    description: "callback required to resolve the async request"
-                }
-            ],
-            []
-        );
-
-        domainManager.registerEvent(
-            domainName,
-            "data",
-            [
-                {
-                    name: "params",
-                    type: "object",
-                    description: "json object containing message info to pass to brackets"
-                }
-            ]
-        );
+        this.nodeConnector.on("data", this.processRequest.bind(this));
+        this.nodeConnector.on("response", this.processResponse.bind(this));
+        this.nodeConnector.on("asyncData", this.processAsyncRequest.bind(this));
     };
 
     exports.NodeToBracketsInterface = NodeToBracketsInterface;

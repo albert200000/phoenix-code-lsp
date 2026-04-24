@@ -96,10 +96,10 @@ define(function (require, exports, module) {
         eventModule.on(_withNamespace(eventName), _eventHandler);
     }
 
-    function initiateToolingService(clientName, languages) {
+    function initiateToolingService(clientName, languages, config) {
         var result = $.Deferred();
 
-        ClientLoader.initiateLanguageClient(clientName)
+        ClientLoader.initiateLanguageClient(clientName, config)
             .done(function (languageClientInfo) {
                 var languageClientName = languageClientInfo.name,
                     languageClientInterface = languageClientInfo.interface,

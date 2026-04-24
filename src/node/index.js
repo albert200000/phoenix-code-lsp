@@ -235,9 +235,7 @@ function initialize(data) {
 }
 
 function initClient(data) {
-    const extnNodeConnector = global.createNodeConnector(data.clientName, exports);
-
-    var client = new LanguageClient(data.clientName, extnNodeConnector, {
+    var client = new LanguageClient(data.clientName, {
         serverOptions: data.serverOptions
     });
 }

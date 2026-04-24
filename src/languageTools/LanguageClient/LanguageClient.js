@@ -49,7 +49,7 @@ function validateHandler(handler) {
     return retval;
 }
 
-function LanguageClient(clientName, domainManager, options) {
+function LanguageClient(clientName, options) {
     this._clientName = clientName;
     this._bracketsInterface = null;
     this._notifyBrackets = null;
@@ -62,7 +62,7 @@ function LanguageClient(clientName, domainManager, options) {
     this._options = options || null;
 
 
-    this._init(domainManager);
+    this._init();
 }
 
 
@@ -201,8 +201,8 @@ LanguageClient.prototype.addOnNotificationHandler = function (type, handler) {
     }
 };
 
-LanguageClient.prototype._init = function (domainManager) {
-    this._bracketsInterface = new NodeToBracketsInterface(domainManager, this._clientName);
+LanguageClient.prototype._init = function () {
+    this._bracketsInterface = new NodeToBracketsInterface(this._clientName);
 
     //Expose own methods for interfaceing. All these are async except notify.
     this._bracketsInterface.registerMethods([

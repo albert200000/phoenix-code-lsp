@@ -254,7 +254,7 @@ define(function (require, exports, module) {
         this.lspServerRunning = false;
         this._lang = config.lang;
 
-        LanguageTools.initiateToolingService(config.lang, [config.lang]).done(function (client) {
+        LanguageTools.initiateToolingService(config.lang, [config.lang], config).done(function (client) {
             this._client = client;
             //Attach only once
             EditorManager.off("activeEditorChange." + config.lang);
@@ -281,7 +281,7 @@ define(function (require, exports, module) {
         });
 
         PreferencesManager.definePreference("lsp.languages", "array", lspLanguages, {
-            description: "LSP languages configuration: { \"lang\": \"php\", \"cmd\": \"phpactor language-server\" }"
+            description: "LSP languages configuration: { \"lang\": \"php\", \"command\": \"phpactor\", \"args\": \"language-server\" }"
         });
 
         PreferencesManager.on("change", "lsp", function () {

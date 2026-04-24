@@ -71,14 +71,14 @@ define(function (require, exports, module) {
         });
     }
 
-    function _initNodeClient(clientName) {
-        clientInfoNodeConnector.execPeer("initClient", { clientName, serverOptions: {} });
+    function _initNodeClient(clientName, config) {
+        clientInfoNodeConnector.execPeer("initClient", { clientName, serverOptions: config });
     }
 
-    function initiateLanguageClient(clientName) {
+    function initiateLanguageClient(clientName, config) {
         var result = $.Deferred();
 
-        _initNodeClient(clientName);
+        _initNodeClient(clientName, config);
 
         //Only load clients after the LanguageClient Info has been initialized
         if (!clientInfoLoadedPromise || clientInfoLoadedPromise.state() === "pending") {
