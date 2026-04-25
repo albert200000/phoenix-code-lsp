@@ -32,7 +32,7 @@ define(function (require, exports, module) {
         this._registerDataEvent();
     }
 
-    BracketsToNodeInterface.prototype._messageHandler = function (evt, params) {
+    BracketsToNodeInterface.prototype._messageHandler = function (params) {
         var methodName = params.method,
             self = this;
 

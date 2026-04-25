@@ -307,7 +307,7 @@ function initialize(connection, params) {
 }
 
 function initialized(connection) {
-    connection.sendNotification(protocol.InitializedNotification.type);
+    connection.sendNotification(protocol.InitializedNotification.type, {});
 }
 
 function shutdown(connection) {
@@ -315,7 +315,7 @@ function shutdown(connection) {
 }
 
 function exit(connection) {
-    connection.sendNotification(protocol.ExitNotification.type);
+    connection.sendNotification(protocol.ExitNotification.type, {});
 }
 
 function processRequest(connection, message) {

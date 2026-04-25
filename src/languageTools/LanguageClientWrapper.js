@@ -330,7 +330,7 @@ define(function (require, exports, module) {
 
             return this._startClient(params)
                 .then(function (result) {
-                    self.setServerCapabilities(result.capabilities);
+                    self.setServerCapabilities.bind(self)(result.capabilities);
                     return $.Deferred().resolve(result);
                 }, function (err) {
                     return $.Deferred().reject(err);

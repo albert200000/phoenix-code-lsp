@@ -144,6 +144,7 @@ LanguageClient.prototype.stop = function () {
 
 LanguageClient.prototype.request = function (params) {
     var messageParams = params.params;
+
     if (messageParams && messageParams.messageType === MESSAGE_TYPE.BRACKETS) {
         if (!messageParams.type) {
             console.log("Invalid brackets request");
@@ -151,25 +152,31 @@ LanguageClient.prototype.request = function (params) {
         }
 
         var requestHandler = this._onRequestHandler[messageParams.type];
+
         if(validateHandler(requestHandler)) {
             return requestHandler.call(null, messageParams.params);
         }
+
         console.log("No handler provided for brackets request type : ", messageParams.type);
+
         return Promise.reject();
     }
+
     return ProtocolAdapter.processRequest(this._connection, params);
 
 };
 
 LanguageClient.prototype.notify = function (params) {
     var messageParams = params.params;
+
     if (messageParams && messageParams.messageType === MESSAGE_TYPE.BRACKETS) {
         if (!messageParams.type) {
             console.log("Invalid brackets notification");
-            return;
+            return Promise.resolve();
         }
 
         var notificationHandlers = this._onNotificationHandlers[messageParams.type];
+
         if(notificationHandlers && Array.isArray(notificationHandlers) && notificationHandlers.length) {
             notificationHandlers.forEach(function (handler) {
                 if(validateHandler(handler)) {
@@ -182,6 +189,8 @@ LanguageClient.prototype.notify = function (params) {
     } else {
         ProtocolAdapter.processNotification(this._connection, params);
     }
+
+    return Promise.resolve();
 };
 
 LanguageClient.prototype.addOnRequestHandler = function (type, handler) {

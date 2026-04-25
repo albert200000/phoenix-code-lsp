@@ -99,10 +99,11 @@ define(function (require, exports, module) {
             filePath: docPath,
             fileContent: editor.document.getText()
         });
+
         client.requestHints({
             filePath: docPath,
             cursorPos: pos
-        }).done(function (msgObj) {
+        }).then(function (msgObj) {
             var context = TokenUtils.getInitialContext(editor._codeMirror, pos),
                 hints = [];
 
@@ -164,7 +165,7 @@ define(function (require, exports, module) {
                 "enableDescription": true,
                 "selectInitial": token && /\S/.test(token) && isNaN(parseInt(token, 10)) // If the active token is blank then don't put default selection
             });
-        }).fail(function () {
+        }).catch(function () {
             $deferredHints.reject();
         });
 

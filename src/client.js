@@ -214,6 +214,7 @@ define(function (require, exports, module) {
     ClientHandler.prototype.runLspServer = function () {
         if (this._client) {
             var startFunc = this._client.start.bind(this._client);
+            var self = this;
 
             if (this.lspServerRunning) {
                 startFunc = this._client.restart.bind(this._client);
@@ -225,8 +226,8 @@ define(function (require, exports, module) {
                 rootPath: this.currentRootPath
             }).then(function (result) {
                 console.log("Language Server started");
-                this.serverCapabilities = result.capabilities;
-                this.handlePostLspServerStart();
+                self.serverCapabilities = result.capabilities;
+                self.handlePostLspServerStart();
             });
         }
     };
