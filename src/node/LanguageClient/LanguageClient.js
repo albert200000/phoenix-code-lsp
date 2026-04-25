@@ -72,6 +72,7 @@ LanguageClient.prototype._createConnection = function () {
         stopLanguageClient = this.stop.bind(this);
 
     var serverOptions = this._options.serverOptions;
+
     return ServerUtils.startServerAndGetConnectionArgs(serverOptions)
         .then(function (connectionArgs) {
             return Connection.createConnection(connectionArgs.reader, connectionArgs.writer, restartLanguageClient, stopLanguageClient);
@@ -115,6 +116,7 @@ LanguageClient.prototype.start = function (params) {
             ProtocolAdapter.attachOnNotificationHandlers(self._connection, self._notifyBrackets);
             ProtocolAdapter.attachOnRequestHandlers(self._connection, self._requestBrackets);
             ProtocolAdapter.initialized(self._connection);
+
             return result;
         }).catch(function (error) {
             console.error('Starting client failed because :', error);

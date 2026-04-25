@@ -29,7 +29,6 @@
 
 var protocol = require("vscode-languageserver-protocol"),
     Utils = require("./Utils"),
-    ToolingInfo = LanguageClientInfo.toolingInfo,
     MESSAGE_FORMAT = {
         BRACKETS: "brackets",
         LSP: "lsp"
@@ -46,17 +45,17 @@ function _constructParamsAndRelay(relay, type, params) {
     }
 
     switch (type) {
-    case ToolingInfo.LANGUAGE_SERVICE.CUSTOM_REQUEST:
+    case LanguageClientInfo.toolingInfo.LANGUAGE_SERVICE.CUSTOM_REQUEST:
         return sendCustomRequest(relay, params.type, params.params);
-    case ToolingInfo.LANGUAGE_SERVICE.CUSTOM_NOTIFICATION:
+    case LanguageClientInfo.toolingInfo.LANGUAGE_SERVICE.CUSTOM_NOTIFICATION:
         {
             sendCustomNotification(relay, params.type, params.params);
             break;
         }
-    case ToolingInfo.SERVICE_REQUESTS.SHOW_SELECT_MESSAGE:
-    case ToolingInfo.SERVICE_REQUESTS.REGISTRATION_REQUEST:
-    case ToolingInfo.SERVICE_REQUESTS.UNREGISTRATION_REQUEST:
-    case ToolingInfo.SERVICE_REQUESTS.PROJECT_FOLDERS_REQUEST:
+    case LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.SHOW_SELECT_MESSAGE:
+    case LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.REGISTRATION_REQUEST:
+    case LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.UNREGISTRATION_REQUEST:
+    case LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.PROJECT_FOLDERS_REQUEST:
         {
             _params = {
                 type: type,
@@ -64,10 +63,10 @@ function _constructParamsAndRelay(relay, type, params) {
             };
             return relay(_params);
         }
-    case ToolingInfo.SERVICE_NOTIFICATIONS.SHOW_MESSAGE:
-    case ToolingInfo.SERVICE_NOTIFICATIONS.LOG_MESSAGE:
-    case ToolingInfo.SERVICE_NOTIFICATIONS.TELEMETRY:
-    case ToolingInfo.SERVICE_NOTIFICATIONS.DIAGNOSTICS:
+    case LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.SHOW_MESSAGE:
+    case LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.LOG_MESSAGE:
+    case LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.TELEMETRY:
+    case LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.DIAGNOSTICS:
         {
             _params = {
                 type: type,
@@ -76,7 +75,7 @@ function _constructParamsAndRelay(relay, type, params) {
             relay(_params);
             break;
         }
-    case ToolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_OPENED:
+    case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_OPENED:
         {
             _params = _params || {
                 textDocument: {
@@ -89,7 +88,7 @@ function _constructParamsAndRelay(relay, type, params) {
             didOpenTextDocument(relay, _params);
             break;
         }
-    case ToolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_CHANGED:
+    case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_CHANGED:
         {
             _params = _params || {
                 textDocument: {
@@ -103,7 +102,7 @@ function _constructParamsAndRelay(relay, type, params) {
             didChangeTextDocument(relay, _params);
             break;
         }
-    case ToolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_SAVED:
+    case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_SAVED:
         {
             if (!_params) {
                 _params = {
@@ -119,7 +118,7 @@ function _constructParamsAndRelay(relay, type, params) {
             didSaveTextDocument(relay, _params);
             break;
         }
-    case ToolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_CLOSED:
+    case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_CLOSED:
         {
             _params = _params || {
                 textDocument: {
@@ -130,7 +129,7 @@ function _constructParamsAndRelay(relay, type, params) {
             didCloseTextDocument(relay, _params);
             break;
         }
-    case ToolingInfo.SYNCHRONIZE_EVENTS.PROJECT_FOLDERS_CHANGED:
+    case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.PROJECT_FOLDERS_CHANGED:
         {
             var foldersAdded = params.foldersAdded || [],
                 foldersRemoved = params.foldersRemoved || [];
@@ -147,15 +146,15 @@ function _constructParamsAndRelay(relay, type, params) {
             didChangeWorkspaceFolders(relay, _params);
             break;
         }
-    case ToolingInfo.FEATURES.CODE_HINTS:
+    case LanguageClientInfo.toolingInfo.FEATURES.CODE_HINTS:
         handler = completion;
-    case ToolingInfo.FEATURES.PARAMETER_HINTS:
+    case LanguageClientInfo.toolingInfo.FEATURES.PARAMETER_HINTS:
         handler = handler || signatureHelp;
-    case ToolingInfo.FEATURES.JUMP_TO_DECLARATION:
+    case LanguageClientInfo.toolingInfo.FEATURES.JUMP_TO_DECLARATION:
         handler = handler || gotoDeclaration;
-    case ToolingInfo.FEATURES.JUMP_TO_DEFINITION:
+    case LanguageClientInfo.toolingInfo.FEATURES.JUMP_TO_DEFINITION:
         handler = handler || gotoDefinition;
-    case ToolingInfo.FEATURES.JUMP_TO_IMPL:
+    case LanguageClientInfo.toolingInfo.FEATURES.JUMP_TO_IMPL:
         {
             handler = handler || gotoImplementation;
             _params = _params || {
@@ -167,11 +166,11 @@ function _constructParamsAndRelay(relay, type, params) {
 
             return handler(relay, _params);
         }
-    case ToolingInfo.FEATURES.CODE_HINT_INFO:
+    case LanguageClientInfo.toolingInfo.FEATURES.CODE_HINT_INFO:
         {
             return completionItemResolve(relay, params);
         }
-    case ToolingInfo.FEATURES.FIND_REFERENCES:
+    case LanguageClientInfo.toolingInfo.FEATURES.FIND_REFERENCES:
         {
             _params = _params || {
                 textDocument: {
@@ -185,7 +184,7 @@ function _constructParamsAndRelay(relay, type, params) {
 
             return findReferences(relay, _params);
         }
-    case ToolingInfo.FEATURES.DOCUMENT_SYMBOLS:
+    case LanguageClientInfo.toolingInfo.FEATURES.DOCUMENT_SYMBOLS:
         {
             _params = _params || {
                 textDocument: {
@@ -195,7 +194,7 @@ function _constructParamsAndRelay(relay, type, params) {
 
             return documentSymbol(relay, _params);
         }
-    case ToolingInfo.FEATURES.PROJECT_SYMBOLS:
+    case LanguageClientInfo.toolingInfo.FEATURES.PROJECT_SYMBOLS:
         {
             _params = _params || {
                 query: params.query
@@ -331,13 +330,13 @@ function attachOnNotificationHandlers(connection, handler) {
     function _callbackFactory(type) {
         switch (type) {
         case protocol.ShowMessageNotification.type:
-            return _constructParamsAndRelay.bind(null, handler, ToolingInfo.SERVICE_NOTIFICATIONS.SHOW_MESSAGE);
+            return _constructParamsAndRelay.bind(null, handler, LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.SHOW_MESSAGE);
         case protocol.LogMessageNotification.type:
-            return _constructParamsAndRelay.bind(null, handler, ToolingInfo.SERVICE_NOTIFICATIONS.LOG_MESSAGE);
+            return _constructParamsAndRelay.bind(null, handler, LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.LOG_MESSAGE);
         case protocol.TelemetryEventNotification.type:
-            return _constructParamsAndRelay.bind(null, handler, ToolingInfo.SERVICE_NOTIFICATIONS.TELEMETRY);
+            return _constructParamsAndRelay.bind(null, handler, LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.TELEMETRY);
         case protocol.PublishDiagnosticsNotification.type:
-            return _constructParamsAndRelay.bind(null, handler, ToolingInfo.SERVICE_NOTIFICATIONS.DIAGNOSTICS);
+            return _constructParamsAndRelay.bind(null, handler, LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.DIAGNOSTICS);
         }
     }
 
@@ -358,13 +357,13 @@ function attachOnRequestHandlers(connection, handler) {
     function _callbackFactory(type) {
         switch (type) {
         case protocol.ShowMessageRequest.type:
-            return _constructParamsAndRelay.bind(null, handler, ToolingInfo.SERVICE_REQUESTS.SHOW_SELECT_MESSAGE);
+            return _constructParamsAndRelay.bind(null, handler, LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.SHOW_SELECT_MESSAGE);
         case protocol.RegistrationRequest.type:
-            return _constructParamsAndRelay.bind(null, handler, ToolingInfo.SERVICE_REQUESTS.REGISTRATION_REQUEST);
+            return _constructParamsAndRelay.bind(null, handler, LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.REGISTRATION_REQUEST);
         case protocol.UnregistrationRequest.type:
-            return _constructParamsAndRelay.bind(null, handler, ToolingInfo.SERVICE_REQUESTS.UNREGISTRATION_REQUEST);
+            return _constructParamsAndRelay.bind(null, handler, LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.UNREGISTRATION_REQUEST);
         case protocol.WorkspaceFoldersRequest.type:
-            return _constructParamsAndRelay.bind(null, handler, ToolingInfo.SERVICE_REQUESTS.PROJECT_FOLDERS_REQUEST);
+            return _constructParamsAndRelay.bind(null, handler, LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.PROJECT_FOLDERS_REQUEST);
         }
     }
 

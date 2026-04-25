@@ -42,6 +42,7 @@ define(function (require, exports, module) {
             } else if (err && err.name && err.name === "Error") {
                 return err.message;
             }
+
             return "Error in executing " + methodName;
 
         }
@@ -51,6 +52,7 @@ define(function (require, exports, module) {
                 requestId: params.requestId,
                 params: response
             };
+
             self.nodeConnector.triggerPeer("response", responseParams);
         }
 
@@ -59,11 +61,13 @@ define(function (require, exports, module) {
                 requestId: params.requestId,
                 error: _getErrorString(err)
             };
+
             self.nodeConnector.triggerPeer("response", responseParams);
         }
 
         if (self.bracketsFn[methodName]) {
             var method = self.bracketsFn[methodName];
+
             try {
                 var response = method.call(null, params.params);
                 if (params.respond && params.requestId) {
@@ -91,13 +95,15 @@ define(function (require, exports, module) {
 
     BracketsToNodeInterface.prototype.createInterface = function (methodName, isAsync) {
         var self = this;
+
         return function (params) {
             var execEvent = isAsync ? "asyncData" : "data";
             var callObject = {
                 method: methodName,
                 params: params
             };
-            return self.nodeConnector.triggerPeer(execEvent, callObject);
+
+            return self.nodeConnector.execPeer(execEvent, callObject);
         };
     };
 
@@ -110,6 +116,7 @@ define(function (require, exports, module) {
 
     BracketsToNodeInterface.prototype.registerMethods = function (methodList) {
         var self = this;
+
         methodList.forEach(function (methodObj) {
             self.registerMethod(methodObj.methodName, methodObj.methodHandle);
         });

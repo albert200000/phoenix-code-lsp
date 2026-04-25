@@ -324,18 +324,21 @@ define(function (require, exports, module) {
     //start
     LanguageClientWrapper.prototype.start = function (params) {
         params = validateRequestParams(ToolingInfo.LANGUAGE_SERVICE.START, params);
+
         if (params) {
             var self = this;
+
             return this._startClient(params)
-                    .then(function (result) {
-                        self.setServerCapabilities(result.capabilities);
-                        return $.Deferred().resolve(result);
-                    }, function (err) {
-                        return $.Deferred().reject(err);
-                    });
+                .then(function (result) {
+                    self.setServerCapabilities(result.capabilities);
+                    return $.Deferred().resolve(result);
+                }, function (err) {
+                    return $.Deferred().reject(err);
+                });
         }
 
         console.log("Invalid Parameters provided for request type : start");
+
         return $.Deferred().reject();
     };
 

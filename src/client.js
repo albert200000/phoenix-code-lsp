@@ -49,8 +49,8 @@ define(function (require, exports, module) {
 
     var DEBUG_OPEN_PREFERENCES_IN_SPLIT_VIEW  = "debug.openPrefsInSplitView";
 
-    function ClientHandler() {
-        this._lang = "",
+    function ClientHandler(lang) {
+        this._lang = lang,
         this._client = null,
         this.evtHandler,
         this.lspServerRunning = false,
@@ -223,7 +223,7 @@ define(function (require, exports, module) {
 
             startFunc({
                 rootPath: this.currentRootPath
-            }).done(function (result) {
+            }).then(function (result) {
                 console.log("Language Server started");
                 this.serverCapabilities = result.capabilities;
                 this.handlePostLspServerStart();
@@ -234,6 +234,7 @@ define(function (require, exports, module) {
     ClientHandler.prototype.activeEditorChangeHandler = function (event, current) {
         if (current) {
             var language = current.document.getLanguage();
+
             if (language.getId() === this._lang) {
                 this.runLspServer();
                 EditorManager.off("activeEditorChange." + this._lang);
@@ -252,18 +253,18 @@ define(function (require, exports, module) {
 
     ClientHandler.prototype.init = function (config) {
         this.lspServerRunning = false;
-        this._lang = config.lang;
 
+        var lang = config.lang;
         var clientHandler = this;
 
-        LanguageTools.initiateToolingService(config.lang, [config.lang], config).done(function (client) {
-            this._client = client;
+        LanguageTools.initiateToolingService(lang, [lang], config).done(function (client) {
+            clientHandler._client = client;
             //Attach only once
-            EditorManager.off("activeEditorChange." + config.lang);
-            EditorManager.on("activeEditorChange." + config.lang, clientHandler.activeEditorChangeHandler);
+            EditorManager.off("activeEditorChange." + lang);
+            EditorManager.on("activeEditorChange." + lang, clientHandler.activeEditorChangeHandler.bind(clientHandler));
             //Attach only once
-            LanguageManager.off("languageModified." + config.lang);
-            LanguageManager.on("languageModified." + config.lang, clientHandler.languageModifiedHandler);
+            LanguageManager.off("languageModified." + lang);
+            LanguageManager.on("languageModified." + lang, clientHandler.languageModifiedHandler.bind(clientHandler));
             clientHandler.activeEditorChangeHandler(null, EditorManager.getActiveEditor());
         });
     };
@@ -283,7 +284,7 @@ define(function (require, exports, module) {
         });
 
         lspLanguages.forEach(function (config) {
-            var clientHandler = new ClientHandler();
+            var clientHandler = new ClientHandler(config.lang);
             clientHandler.init(config);
         })
     };

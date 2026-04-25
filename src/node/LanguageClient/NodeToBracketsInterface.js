@@ -62,21 +62,6 @@
         }
     };
 
-    NodeToBracketsInterface.prototype.processAsyncRequest = function (params, resolver) {
-        var methodName = params.method;
-
-        if (this.nodeFn[methodName]) {
-            var method = this.nodeFn[methodName];
-
-            method.call(null, params.params) //The Async function should return a promise
-                .then(function (result) {
-                    resolver(null, result);
-                }).catch(function (err) {
-                    resolver(err, null);
-                });
-        }
-    };
-
     NodeToBracketsInterface.prototype.processResponse = function (params) {
         if (params.requestId) {
             if (params.error) {
@@ -145,9 +130,10 @@
     NodeToBracketsInterface.prototype._registerDataEvents = function (domainName) {
         this.nodeConnector = global.createNodeConnector(domainName, exports);
 
-        this.nodeConnector.on("data", this.processRequest.bind(this));
+        exports.data = this.processRequest.bind(this);
+        exports.asyncData = this.processRequest.bind(this);
+
         this.nodeConnector.on("response", this.processResponse.bind(this));
-        this.nodeConnector.on("asyncData", this.processAsyncRequest.bind(this));
     };
 
     exports.NodeToBracketsInterface = NodeToBracketsInterface;
