@@ -70,6 +70,7 @@ define(function (require, exports, module) {
 
             try {
                 var response = method.call(null, params.params);
+
                 if (params.respond && params.requestId) {
                     if (response.promise) {
                         response.done(function (result) {

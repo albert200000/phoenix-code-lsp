@@ -148,8 +148,24 @@ function _constructParamsAndRelay(relay, type, params) {
         }
     case LanguageClientInfo.toolingInfo.FEATURES.CODE_HINTS:
         handler = completion;
+        _params = _params || {
+            textDocument: {
+                uri: Utils.pathToUri(params.filePath)
+            },
+            position: Utils.convertToLSPPosition(params.cursorPos)
+        };
+
+        return handler(relay, _params);
     case LanguageClientInfo.toolingInfo.FEATURES.PARAMETER_HINTS:
         handler = handler || signatureHelp;
+        _params = _params || {
+            textDocument: {
+                uri: Utils.pathToUri(params.filePath)
+            },
+            position: Utils.convertToLSPPosition(params.cursorPos)
+        };
+
+        return handler(relay, _params);
     case LanguageClientInfo.toolingInfo.FEATURES.JUMP_TO_DECLARATION:
         handler = handler || gotoDeclaration;
     case LanguageClientInfo.toolingInfo.FEATURES.JUMP_TO_DEFINITION:

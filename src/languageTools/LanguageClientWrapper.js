@@ -258,7 +258,9 @@ define(function (require, exports, module) {
         if (validateHandler(requestHandler)) {
             return requestHandler.call(null, params.params);
         }
+
         console.log("No handler provided for server request type : ", params.type);
+
         return $.Deferred().reject();
 
     };
@@ -283,12 +285,14 @@ define(function (require, exports, module) {
 
     LanguageClientWrapper.prototype._request = function (type, params) {
         params = validateRequestParams(type, params);
+
         if (params) {
             params = _addTypeInformation(type, params);
             return this._requestClient(params);
         }
 
         console.log("Invalid Parameters provided for request type : ", type);
+
         return $.Deferred().reject();
     };
 
@@ -360,12 +364,7 @@ define(function (require, exports, module) {
     */
     //completion
     LanguageClientWrapper.prototype.requestHints = function (params) {
-        return this._request(ToolingInfo.FEATURES.CODE_HINTS, params)
-            .then(function(response) {
-                return $.Deferred().resolve(response);
-            }, function(err) {
-                return $.Deferred().reject(err);
-            });
+        return this._request(ToolingInfo.FEATURES.CODE_HINTS, params);
     };
 
     //completionItemResolve
@@ -375,12 +374,7 @@ define(function (require, exports, module) {
 
     //signatureHelp
     LanguageClientWrapper.prototype.requestParameterHints = function (params) {
-        return this._request(ToolingInfo.FEATURES.PARAMETER_HINTS, params)
-            .then(function(response) {
-                return $.Deferred().resolve(response);
-            }, function(err) {
-                return $.Deferred().reject(err);
-            });
+        return this._request(ToolingInfo.FEATURES.PARAMETER_HINTS, params);
     };
 
     //gotoDefinition

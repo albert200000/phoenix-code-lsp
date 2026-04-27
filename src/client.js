@@ -78,7 +78,7 @@ define(function (require, exports, module) {
         } else {
             this._client.restart({
                 rootPath: directory.fullPath
-            }).done(this.handlePostLspServerStart);
+            }).then(this.handlePostLspServerStart);
         }
     };
 

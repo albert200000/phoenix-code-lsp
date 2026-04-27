@@ -163,7 +163,6 @@ LanguageClient.prototype.request = function (params) {
     }
 
     return ProtocolAdapter.processRequest(this._connection, params);
-
 };
 
 LanguageClient.prototype.notify = function (params) {

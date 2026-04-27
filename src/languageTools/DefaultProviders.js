@@ -120,11 +120,12 @@ define(function (require, exports, module) {
         this.client.requestHints({
             filePath: docPath,
             cursorPos: pos
-        }).done(function (msgObj) {
+        }).then(function (msgObj) {
             var context = TokenUtils.getInitialContext(editor._codeMirror, pos),
                 hints = [];
 
             self.query = context.token.string.slice(0, context.pos.ch - context.token.start);
+
             if (msgObj) {
                 var res = msgObj.items,
                     filteredHints = filterWithQueryAndMatcher(res, self.query);
@@ -157,7 +158,7 @@ define(function (require, exports, module) {
             $deferredHints.resolve({
                 "hints": hints
             });
-        }).fail(function () {
+        }).catch(function () {
             $deferredHints.reject();
         });
 
@@ -233,7 +234,7 @@ define(function (require, exports, module) {
         this.client.requestParameterHints({
             filePath: docPath,
             cursorPos: pos
-        }).done(function (msgObj) {
+        }).then(function (msgObj) {
             let paramList = [];
             let label;
             let activeParameter;
@@ -264,7 +265,7 @@ define(function (require, exports, module) {
             } else {
                 $deferredHints.reject();
             }
-        }).fail(function () {
+        }).catch(function () {
             $deferredHints.reject();
         });
 
