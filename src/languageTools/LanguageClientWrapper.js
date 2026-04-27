@@ -379,12 +379,7 @@ define(function (require, exports, module) {
 
     //gotoDefinition
     LanguageClientWrapper.prototype.gotoDefinition = function (params) {
-        return this._request(ToolingInfo.FEATURES.JUMP_TO_DEFINITION, params)
-            .then(function(response) {
-                return $.Deferred().resolve(response);
-            }, function(err) {
-                return $.Deferred().reject(err);
-            });
+        return this._request(ToolingInfo.FEATURES.JUMP_TO_DEFINITION, params);
     };
 
     //gotoDeclaration

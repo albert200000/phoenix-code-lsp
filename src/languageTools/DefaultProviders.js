@@ -316,7 +316,7 @@ define(function (require, exports, module) {
         this.client.gotoDefinition({
             filePath: docPath,
             cursorPos: pos
-        }).done(function (msgObj) {
+        }).then(function (msgObj) {
             //For Older servers
             if (Array.isArray(msgObj)) {
                 msgObj = msgObj[msgObj.length - 1];
@@ -342,7 +342,7 @@ define(function (require, exports, module) {
                     $deferredHints.resolve();
                 }
             }
-        }).fail(function () {
+        }).catch(function () {
             $deferredHints.reject();
         });
 
@@ -491,7 +491,7 @@ define(function (require, exports, module) {
             this.client.findReferences({
                 filePath: docPath,
                 cursorPos: pos
-            }).done(function(msgObj){
+            }).then(function(msgObj){
                     if(msgObj && msgObj.length) {
                         msgObj.cursorPos = pos;
                         serverRespToSearchModelFormat(msgObj)
@@ -500,7 +500,7 @@ define(function (require, exports, module) {
                     } else {
                         result.reject();
                     }
-                }).fail(function(){
+                }).catch(function(){
                     result.reject();
                 });
             return result.promise();

@@ -72,10 +72,10 @@ define(function (require, exports, module) {
                 var response = method.call(null, params.params);
 
                 if (params.respond && params.requestId) {
-                    if (response.promise) {
-                        response.done(function (result) {
+                    if (response.then) {
+                        response.then(function (result) {
                             _sendResponse(result);
-                        }).fail(function (err) {
+                        }).catch(function (err) {
                             _sendError(err);
                         });
                     } else {
