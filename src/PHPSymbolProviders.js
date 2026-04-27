@@ -141,7 +141,7 @@ define(function (require, exports, module) {
 
         this.client.requestSymbolsForDocument({
             filePath: docPath
-        }).done(function (results) {
+        }).then(function (results) {
             var resultList = transFormToSymbolList(query, matcher, results, true);
             retval.resolve(resultList);
         });
@@ -200,7 +200,7 @@ define(function (require, exports, module) {
 
         this.client.requestSymbolsForWorkspace({
             query: query
-        }).done(function (results) {
+        }).then(function (results) {
             var resultList = transFormToSymbolList(query, matcher, results);
             retval.resolve(resultList);
         });
