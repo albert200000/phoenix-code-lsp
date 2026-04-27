@@ -60,6 +60,7 @@ define(function (require, exports, module) {
 
     function formatTypeDataForToken($hintObj, token) {
         $hintObj.addClass('brackets-hints-with-type-details');
+
         if (token.detail) {
             if (token.detail.trim() !== '?') {
                 if (token.detail.length < 30) {
@@ -72,6 +73,7 @@ define(function (require, exports, module) {
                 $('<span>keyword</span>').appendTo($hintObj).addClass("brackets-hints-keyword");
             }
         }
+
         if (token.documentation) {
             $hintObj.attr('title', token.documentation);
             $('<span></span>').text(token.documentation.trim()).appendTo($hintObj).addClass("hint-doc");
@@ -393,13 +395,16 @@ define(function (require, exports, module) {
         this._results.set(filePath, {
             errors: errors
         });
+
         if(this._promiseMap.get(filePath)) {
            this._promiseMap.get(filePath).resolve(this._results.get(filePath));
            this._promiseMap.delete(filePath);
         }
+
         if (this._validateOnType) {
             var editor = EditorManager.getActiveEditor(),
                 docPath = editor ? editor.document.file._path : "";
+
             if (filePath === docPath) {
                 CodeInspection.requestRun();
             }
@@ -412,7 +417,9 @@ define(function (require, exports, module) {
         if (this._results.get(filePath)) {
             return result.resolve(this._results.get(filePath));
         }
+
         this._promiseMap.set(filePath, result);
+
         return result;
     };
 
@@ -427,11 +434,14 @@ define(function (require, exports, module) {
         if(!(msgObj && msgObj.length && msgObj.cursorPos)) {
             return result.reject();
         }
+
         referenceModel.results = {};
         referenceModel.numFiles = 0;
         var fulfilled = 0;
+
         msgObj.forEach((element, i) => {
             var filePath = PathConverters.uriToPath(element.uri);
+
             DocumentManager.getDocumentForPath(filePath)
                 .done(function(doc) {
                     var startRange = {line: element.range.start.line, ch: element.range.start.character};
@@ -442,13 +452,16 @@ define(function (require, exports, module) {
                         highlightOffset: 0,
                         line: doc.getLine(element.range.start.line)
                     };
+
                     if(!referenceModel.results[filePath]) {
                         referenceModel.numFiles = referenceModel.numFiles + 1;
                         referenceModel.results[filePath] = {"matches": []};
                     }
+
                     if(!referenceModel.queryInfo || msgObj.cursorPos.line === startRange.line) {
                         referenceModel.queryInfo = doc.getRange(startRange, endRange);
                     }
+
                     referenceModel.results[filePath]["matches"].push(match);
                 }).always(function() {
                     fulfilled++;
@@ -459,6 +472,7 @@ define(function (require, exports, module) {
                     }
                 });
         });
+
         return result.promise();
     }
 
@@ -503,8 +517,10 @@ define(function (require, exports, module) {
                 }).catch(function(){
                     result.reject();
                 });
+
             return result.promise();
         }
+
         return result.reject();
     };
 

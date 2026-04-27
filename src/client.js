@@ -108,10 +108,12 @@ define(function (require, exports, module) {
         ParameterHintManager.registerHintProvider(this.phProvider, [this._lang], 0);
         FindReferencesManager.registerFindReferencesProvider(this.refProvider, [this._lang], 0);
         FindReferencesManager.setMenuItemStateForLanguage();
+
         CodeInspection.register([this._lang], {
-            name: "",
+            name: "lsp-" + this._lang,
             scanFileAsync: this.lProvider.getInspectionResultsAsync.bind(this.lProvider)
         });
+
         //Attach plugin for Document Symbols
         QuickOpen.addQuickOpenPlugin({
             name: "Document Symbols",
@@ -123,7 +125,9 @@ define(function (require, exports, module) {
             itemSelect: this.dSymProvider.itemSelect.bind(this.dSymProvider),
             resultsFormatter: this.dSymProvider.resultsFormatter.bind(this.dSymProvider)
         });
+
         CommandManager.get(Commands.NAVIGATE_GOTO_DEFINITION).setEnabled(true);
+
         //Attach plugin for Project Symbols
         QuickOpen.addQuickOpenPlugin({
             name: "Project Symbols",
@@ -135,6 +139,7 @@ define(function (require, exports, module) {
             itemSelect: this.pSymProvider.itemSelect.bind(this.pSymProvider),
             resultsFormatter: this.pSymProvider.resultsFormatter.bind(this.pSymProvider)
         });
+
         CommandManager.get(Commands.NAVIGATE_GOTO_DEFINITION_PROJECT).setEnabled(true);
 
         this._client.addOnCodeInspection(this.lProvider.setInspectionResults.bind(this.lProvider));
@@ -144,7 +149,9 @@ define(function (require, exports, module) {
 
     ClientHandler.prototype.addEventHandlers = function () {
         this._client.addOnLogMessage(function () {});
-        this._client.addOnShowMessage(function () {});
+        this._client.addOnShowMessage(function (msgObj) {
+            console.log("lsp show message: " + msgObj.message);
+        });
         this.evtHandler = new DefaultEventHandlers.EventPropagationProvider(this._client);
         this.evtHandler.registerClientForEditorEvent();
         this.lProvider._validateOnType = true;
@@ -223,7 +230,7 @@ define(function (require, exports, module) {
             this.currentRootPath = ProjectManager.getProjectRoot()._path;
 
             startFunc({
-                rootPath: this.currentRootPath
+                rootPath: this.currentRootPath.slice(6)
             }).then(function (result) {
                 console.log("Language Server started");
                 self.serverCapabilities = result.capabilities;

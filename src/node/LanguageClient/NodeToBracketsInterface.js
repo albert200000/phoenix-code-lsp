@@ -62,7 +62,7 @@
         }
     };
 
-    NodeToBracketsInterface.prototype.processResponse = function (params) {
+    NodeToBracketsInterface.prototype.processResponse = function (_, params) {
         if (params.requestId) {
             if (params.error) {
                 bracketsEventHandler.emit(params.requestId, params.error);
