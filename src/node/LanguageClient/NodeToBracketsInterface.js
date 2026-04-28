@@ -128,10 +128,11 @@
     };
 
     NodeToBracketsInterface.prototype._registerDataEvents = function (domainName) {
-        exports.data = this.processRequest.bind(this);
-        exports.asyncData = this.processRequest.bind(this);
+        this.nodeConnector = global.createNodeConnector(domainName, {
+            data: this.processRequest.bind(this),
+            asyncData: this.processRequest.bind(this)
+        });
 
-        this.nodeConnector = global.createNodeConnector(domainName, exports);
         this.nodeConnector.on("response", this.processResponse.bind(this));
     };
 

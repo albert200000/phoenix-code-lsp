@@ -49,8 +49,8 @@ define(function (require, exports, module) {
 
     var DEBUG_OPEN_PREFERENCES_IN_SPLIT_VIEW  = "debug.openPrefsInSplitView";
 
-    function ClientHandler(lang) {
-        this._lang = lang,
+    function ClientHandler(langs) {
+        this._langs = langs,
         this._client = null,
         this.evtHandler,
         this.lspServerRunning = false,
@@ -103,14 +103,14 @@ define(function (require, exports, module) {
         this.pSymProvider = new SymbolProviders.ProjectSymbolsProvider(this._client);
         this.refProvider = new DefaultProviders.ReferencesProvider(this._client);
 
-        JumpToDefManager.registerJumpToDefProvider(this.jdProvider, [this._lang], 0);
-        CodeHintManager.registerHintProvider(this.chProvider, [this._lang], 0);
-        ParameterHintManager.registerHintProvider(this.phProvider, [this._lang], 0);
-        FindReferencesManager.registerFindReferencesProvider(this.refProvider, [this._lang], 0);
+        JumpToDefManager.registerJumpToDefProvider(this.jdProvider, this._langs, 0);
+        CodeHintManager.registerHintProvider(this.chProvider, this._langs, 0);
+        ParameterHintManager.registerHintProvider(this.phProvider, this._langs, 0);
+        FindReferencesManager.registerFindReferencesProvider(this.refProvider, this._langs, 0);
         FindReferencesManager.setMenuItemStateForLanguage();
 
-        CodeInspection.register([this._lang], {
-            name: "lsp-" + this._lang,
+        CodeInspection.register(this._langs, {
+            name: "lsp-" + this._langs[0],
             scanFileAsync: this.lProvider.getInspectionResultsAsync.bind(this.lProvider)
         });
 
@@ -118,7 +118,7 @@ define(function (require, exports, module) {
         QuickOpen.addQuickOpenPlugin({
             name: "Document Symbols",
             label: Strings.CMD_FIND_DOCUMENT_SYMBOLS + "\u2026",
-            languageIds: [this._lang],
+            languageIds: this._langs,
             search: this.dSymProvider.search.bind(this.dSymProvider),
             match: this.dSymProvider.match.bind(this.dSymProvider),
             itemFocus: this.dSymProvider.itemFocus.bind(this.dSymProvider),
@@ -132,7 +132,7 @@ define(function (require, exports, module) {
         QuickOpen.addQuickOpenPlugin({
             name: "Project Symbols",
             label: Strings.CMD_FIND_PROJECT_SYMBOLS + "\u2026",
-            languageIds: [this._lang],
+            languageIds: this._langs,
             search: this.pSymProvider.search.bind(this.pSymProvider),
             match: this.pSymProvider.match.bind(this.pSymProvider),
             itemFocus: this.pSymProvider.itemFocus.bind(this.pSymProvider),
@@ -210,8 +210,11 @@ define(function (require, exports, module) {
             }
 
             this.addEventHandlers();
-            EditorManager.off("activeEditorChange." + this._lang);
-            LanguageManager.off("languageModified." + this._lang);
+
+            this._langs.forEach(function (lang) {
+                EditorManager.off("activeEditorChange." + lang);
+                LanguageManager.off("languageModified." + lang);
+            });
         }
 
         this.evtHandler.handleActiveEditorChange(null, EditorManager.getActiveEditor());
@@ -243,37 +246,44 @@ define(function (require, exports, module) {
         if (current) {
             var language = current.document.getLanguage();
 
-            if (language.getId() === this._lang) {
-                this.runLspServer();
-                EditorManager.off("activeEditorChange." + this._lang);
-                LanguageManager.off("languageModified." + this._lang);
-            }
+            this._langs.forEach(lang => {
+                if (language.getId() === lang) {
+                    this.runLspServer();
+                    EditorManager.off("activeEditorChange." + lang);
+                    LanguageManager.off("languageModified." + lang);
+                }
+            });
         }
     };
 
     ClientHandler.prototype.languageModifiedHandler = function (event, language) {
-        if (language && language.getId() === this._lang) {
-            this.runLspServer();
-            EditorManager.off("activeEditorChange." + this._lang);
-            LanguageManager.off("languageModified." + this._lang);
-        }
+        this._langs.forEach(lang => {
+            if (language && language.getId() === lang) {
+                this.runLspServer();
+                EditorManager.off("activeEditorChange." + lang);
+                LanguageManager.off("languageModified." + lang);
+            }
+        });
     };
 
     ClientHandler.prototype.init = function (config) {
         this.lspServerRunning = false;
 
-        var lang = config.lang;
+        var langs = config.langs;
         var clientHandler = this;
 
-        LanguageTools.initiateToolingService(lang, [lang], config).done(function (client) {
+        LanguageTools.initiateToolingService(langs[0], langs, config).done(function (client) {
             clientHandler._client = client;
-            //Attach only once
-            EditorManager.off("activeEditorChange." + lang);
-            EditorManager.on("activeEditorChange." + lang, clientHandler.activeEditorChangeHandler.bind(clientHandler));
-            //Attach only once
-            LanguageManager.off("languageModified." + lang);
-            LanguageManager.on("languageModified." + lang, clientHandler.languageModifiedHandler.bind(clientHandler));
-            clientHandler.activeEditorChangeHandler(null, EditorManager.getActiveEditor());
+
+            langs.forEach(lang => {
+                //Attach only once
+                EditorManager.off("activeEditorChange." + lang);
+                EditorManager.on("activeEditorChange." + lang, clientHandler.activeEditorChangeHandler.bind(clientHandler));
+                //Attach only once
+                LanguageManager.off("languageModified." + lang);
+                LanguageManager.on("languageModified." + lang, clientHandler.languageModifiedHandler.bind(clientHandler));
+                clientHandler.activeEditorChangeHandler(null, EditorManager.getActiveEditor());
+            });
         });
     };
 
@@ -292,7 +302,7 @@ define(function (require, exports, module) {
         });
 
         lspLanguages.forEach(function (config) {
-            var clientHandler = new ClientHandler(config.lang);
+            var clientHandler = new ClientHandler(config.langs);
             clientHandler.init(config);
         })
     };

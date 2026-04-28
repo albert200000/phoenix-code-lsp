@@ -52,7 +52,16 @@ define(function (require, exports, module) {
     });
 
     PreferencesManager.definePreference("lsp.languages", "array", [], {
-        description: "LSP languages configuration: [{ \"lang\": \"php\", \"command\": \"phpactor\", \"args\": [\"language-server\"] }]"
+        description: `LSP languages configuration
+    /*
+        [
+            {
+                "langs": ["php"],
+                "command": "phpactor",
+                "args": ["language-server"]
+            }
+        ]
+    */`
     });
 
     PreferencesManager.on("change", "lsp", function () {
