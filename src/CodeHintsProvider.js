@@ -36,19 +36,18 @@ define(function (require, exports, module) {
             preferPrefixMatches: true
         });
 
-    var phpSuperGlobalVariables = JSON.parse(require("text!./phpGlobals.json")),
-        hintType = {
-             "2": "Method",
-             "3": "Function",
-             "4": "Constructor",
-             "6": "Variable",
-             "7": "Class",
-             "8": "Interface",
-             "9": "Module",
-             "10": "Property",
-             "14": "Keyword",
-             "21": "Constant"
-        };
+    var hintType = {
+        "2": "Method",
+        "3": "Function",
+        "4": "Constructor",
+        "6": "Variable",
+        "7": "Class",
+        "8": "Interface",
+        "9": "Module",
+        "10": "Property",
+        "14": "Keyword",
+        "21": "Constant"
+    };
 
     function CodeHintsProvider(client) {
         this.defaultCodeHintProviders = new DefaultProviders.CodeHintsProvider(client);
@@ -113,19 +112,6 @@ define(function (require, exports, module) {
                     trimmedQuery = self.query.trim(),
                     hasIgnoreCharacters = self.ignoreQuery.includes(implicitChar) || self.ignoreQuery.includes(trimmedQuery),
                     isExplicitInvokation = implicitChar === null;
-
-                // There is a bug in Php Language Server, Php Language Server does not provide superGlobals
-                // Variables as completion. so these variables are being explicity put in response objects
-                // below code should be removed if php server fix this bug.
-                if((isExplicitInvokation || trimmedQuery) && !hasIgnoreCharacters) {
-                    for(var key in phpSuperGlobalVariables) {
-                        res.push({
-                            label: key,
-                            documentation: phpSuperGlobalVariables[key].description,
-                            detail: phpSuperGlobalVariables[key].type
-                        });
-                    }
-                }
 
                 var filteredHints = [];
                 if (hasIgnoreCharacters || (isExplicitInvokation && !trimmedQuery)) {

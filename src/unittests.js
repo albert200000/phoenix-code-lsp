@@ -77,7 +77,7 @@ define(function (require, exports, module) {
             CodeInspection.toggleEnabled(true);
             DefaultProviders = testWindow.brackets.getModule("languageTools/DefaultProviders");
             CodeHintsProvider = extensionRequire("CodeHintsProvider");
-            SymbolProviders = extensionRequire("PHPSymbolProviders").SymbolProviders;
+            SymbolProviders = extensionRequire("SymbolProviders").SymbolProviders;
         });
 
         /**

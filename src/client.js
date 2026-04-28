@@ -38,7 +38,7 @@ define(function (require, exports, module) {
         CodeInspection = brackets.getModule("language/CodeInspection"),
         DefaultProviders = require("./languageTools/DefaultProviders"),
         CodeHintsProvider = require("./CodeHintsProvider").CodeHintsProvider,
-        SymbolProviders = require("./PHPSymbolProviders").SymbolProviders,
+        SymbolProviders = require("./SymbolProviders").SymbolProviders,
         DefaultEventHandlers = require("./languageTools/DefaultEventHandlers"),
         Strings             = brackets.getModule("strings"),
         Dialogs             = brackets.getModule("widgets/Dialogs"),
