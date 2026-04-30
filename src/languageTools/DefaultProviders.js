@@ -325,7 +325,7 @@ define(function (require, exports, module) {
             }
 
             if (msgObj && msgObj.range) {
-                var docUri = msgObj.uri,
+                var docUri = msgObj.uri.replace("file://", "file:///tauri"),
                     startCurPos = {};
                 startCurPos.line = msgObj.range.start.line;
                 startCurPos.ch = msgObj.range.start.character;

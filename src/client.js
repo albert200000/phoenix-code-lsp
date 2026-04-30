@@ -78,7 +78,7 @@ define(function (require, exports, module) {
         } else {
             this._client.restart({
                 rootPath: directory.fullPath
-            }).then(this.handlePostLspServerStart);
+            }).then(this.handlePostLspServerStart.bind(this));
         }
     };
 
@@ -155,7 +155,7 @@ define(function (require, exports, module) {
         this.evtHandler = new DefaultEventHandlers.EventPropagationProvider(this._client);
         this.evtHandler.registerClientForEditorEvent();
         this.lProvider._validateOnType = true;
-        this._client.addOnProjectOpenHandler(this.handleProjectOpen);
+        this._client.addOnProjectOpenHandler(this.handleProjectOpen.bind(this));
     };
 
     ClientHandler.prototype.showErrorPopUp = function (err) {
