@@ -71,8 +71,8 @@ define(function (require, exports, module) {
 
         if (this.serverCapabilities["workspace"] && this.serverCapabilities["workspace"]["workspaceFolders"]) {
             this._client.notifyProjectRootsChanged({
-                foldersAdded: [directory.fullPath],
-                foldersRemoved: [this.currentRootPath]
+                foldersAdded: [directory.fullPath.slice(6)],
+                foldersRemoved: [this.currentRootPath.slice(6)]
             });
             this.currentRootPath = directory.fullPath;
         } else {
