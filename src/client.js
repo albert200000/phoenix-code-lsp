@@ -77,7 +77,7 @@ define(function (require, exports, module) {
             this.currentRootPath = directory.fullPath;
         } else {
             this._client.restart({
-                rootPath: directory.fullPath
+                rootPath: directory.fullPath.slice(6)
             }).then(this.handlePostLspServerStart.bind(this));
         }
     };

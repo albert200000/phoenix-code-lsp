@@ -74,9 +74,42 @@ define(function (require, exports, module) {
         return path.replace(/\\/g, '/');
     }
 
+    function hasExtension(uri) {
+        try {
+            const u = new URL(uri, location.href);
+            const pathname = u.pathname.split('/').pop() || '';
+            return pathname.includes('.') && pathname.split('.').pop().trim() !== '';
+        } catch {
+            // fallback for non-URL strings
+            const parts = uri.split('/').pop() || '';
+            return parts.includes('.') && parts.split('.').pop().trim() !== '';
+        }
+    }
+
+    function getExtensionFromUri(uri) {
+        try {
+            // Normalize/handle file:// and absolute URLs
+            const u = new URL(uri, location.href);
+            const pathname = u.pathname;
+            const last = pathname.split('/').pop() || '';
+            // If dot at start (hidden file) but no other dot, treat as no extension
+            const idx = last.lastIndexOf('.');
+            if (idx <= 0) return ''; // no extension or hidden-file only
+            return last.slice(idx); // includes the dot, e.g. ".js"
+        } catch {
+            // Fallback for non-URL strings
+            const last = uri.split('/').pop() || '';
+            const idx = last.lastIndexOf('.');
+            if (idx <= 0) return '';
+            return last.slice(idx);
+        }
+    }
+
     exports.uriToPath = uriToPath;
     exports.pathToUri = pathToUri;
     exports.convertPosixToWinPath = convertPosixToWinPath;
     exports.convertPosixToWinPath = convertPosixToWinPath;
     exports.convertToWorkspaceFolders = convertToWorkspaceFolders;
+    exports.getExtensionFromUri = getExtensionFromUri;
+    exports.hasExtension = hasExtension;
 });

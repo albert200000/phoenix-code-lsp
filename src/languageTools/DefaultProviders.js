@@ -37,7 +37,7 @@ define(function (require, exports, module) {
         TokenUtils = brackets.getModule("utils/TokenUtils"),
         StringMatch = brackets.getModule("utils/StringMatch"),
         CodeInspection = brackets.getModule("language/CodeInspection"),
-        PathConverters = brackets.getModule("languageTools/PathConverters"),
+        PathConverters = require("./PathConverters"),
         matcher = new StringMatch.StringMatcher({
             preferPrefixMatches: true
         });
@@ -184,7 +184,9 @@ define(function (require, exports, module) {
                 ch: cursor.ch
             };
 
-        txt = token.label;
+        // TODO: apply additional edits
+        txt = token.insertText || token.label;
+
         if (token.textEdit && token.textEdit.newText) {
             txt = token.textEdit.newText;
             start = {
@@ -325,13 +327,18 @@ define(function (require, exports, module) {
             }
 
             if (msgObj && msgObj.range) {
-                var docUri = msgObj.uri.replace("file://", "file:///tauri"),
+                var docUri = msgObj.uri.includes("file:///tauri") ? msgObj.uri : msgObj.uri.replace("file://", "file:///tauri"),
                     startCurPos = {};
                 startCurPos.line = msgObj.range.start.line;
                 startCurPos.ch = msgObj.range.start.character;
 
+                if (!PathConverters.hasExtension(docUri)) {
+                    docUri += PathConverters.getExtensionFromUri(docPathUri);
+                }
+
                 if (docUri !== docPathUri) {
                     let documentPath = PathConverters.uriToPath(docUri);
+
                     CommandManager.execute(Commands.FILE_OPEN, {
                             fullPath: documentPath
                         })
