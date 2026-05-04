@@ -184,9 +184,7 @@ define(function (require, exports, module) {
                 ch: cursor.ch
             };
 
-        // TODO: apply additional edits
-        txt = token.insertText || token.label;
-
+        // Use textEdit.newText if available, otherwise fall back to insertText or label
         if (token.textEdit && token.textEdit.newText) {
             txt = token.textEdit.newText;
             start = {
@@ -197,11 +195,39 @@ define(function (require, exports, module) {
                 line: token.textEdit.range.end.line,
                 ch: token.textEdit.range.end.character
             };
+        } else {
+            txt = token.insertText || token.label;
         }
 
+        // Apply completion
         if (editor) {
             editor.document.replaceRange(txt, start, end);
         }
+
+        // Apply additional text edits (if provided)
+        if (token.additionalTextEdits && Array.isArray(token.additionalTextEdits)) {
+            // Sort edits in reverse order (to avoid offset issues)
+            const edits = [...token.additionalTextEdits].sort((a, b) => {
+                if (b.range.start.line !== a.range.start.line) {
+                    return b.range.start.line - a.range.start.line;
+                }
+                return b.range.start.character - a.range.start.character;
+            });
+
+            // Apply each edit
+            edits.forEach(edit => {
+                const editStart = {
+                    line: edit.range.start.line,
+                    ch: edit.range.start.character
+                };
+                const editEnd = {
+                    line: edit.range.end.line,
+                    ch: edit.range.end.character
+                };
+                editor.document.replaceRange(edit.newText, editStart, editEnd);
+            });
+        }
+
         // Return false to indicate that another hinting session is not needed
         return false;
     };
