@@ -59,7 +59,7 @@ define(function (require, exports, module) {
 
         if (previous) {
             previous.document
-                .off("languageChanged.language-tools");
+                .off("languageChanged.lsp");
             var previousLanguageId = LanguageManager.getLanguageForPath(previous.document.file.fullPath).getId();
             if (this.client._languages.includes(previousLanguageId)) {
                 this.client.notifyTextDocumentClosed({
@@ -67,10 +67,11 @@ define(function (require, exports, module) {
                 });
             }
         }
+
         if (current) {
             var currentLanguageId = LanguageManager.getLanguageForPath(current.document.file.fullPath).getId();
             current.document
-                .on("languageChanged.language-tools", function () {
+                .on("languageChanged.lsp", function () {
                     var languageId = LanguageManager.getLanguageForPath(current.document.file.fullPath).getId();
                     self._sendDocumentOpenNotification(languageId, current.document);
                 });
@@ -157,6 +158,10 @@ define(function (require, exports, module) {
         this.client.stop();
     };
 
+    EventPropagationProvider.prototype.handleCursorActivity = function (event) {
+        // TODO: symbol highlight request
+    };
+
     function handleProjectFoldersRequest(event) {
         var projectRoot = ProjectManager.getProjectRoot(),
             workspaceFolders = [projectRoot];
@@ -174,7 +179,8 @@ define(function (require, exports, module) {
                 handleDocumentDirty = this.handleDocumentDirty.bind(this),
                 handleDocumentChange = this.handleDocumentChange.bind(this),
                 handleDocumentRename = this.handleDocumentRename.bind(this),
-                handleAppClose = this.handleAppClose.bind(this);
+                handleAppClose = this.handleAppClose.bind(this),
+                handleCursorActivity = this.handleCursorActivity.bind(this);
 
             this.client.addOnEditorChangeHandler(handleActiveEditorChange);
             this.client.addOnProjectOpenHandler(handleProjectOpen);
@@ -184,6 +190,7 @@ define(function (require, exports, module) {
             this.client.addOnFileRenameHandler(handleDocumentRename);
             this.client.addBeforeAppClose(handleAppClose);
             this.client.onProjectFoldersRequest(handleProjectFoldersRequest);
+            this.client.addOnCursorActivityHandler(handleCursorActivity);
         } else {
             console.log("No client provided for event propagation");
         }

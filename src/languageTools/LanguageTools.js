@@ -33,7 +33,6 @@ define(function (require, exports, module) {
         DocumentManager = brackets.getModule("document/DocumentManager"),
         DocumentModule = brackets.getModule("document/Document"),
         PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
-        Strings = brackets.getModule("strings"),
         LanguageClientWrapper = require("./LanguageClientWrapper").LanguageClientWrapper;
 
     var languageClients = new Map(),
@@ -44,7 +43,8 @@ define(function (require, exports, module) {
             DOCUMENT_DIRTY_EVENT: "dirtyFlagChange",
             DOCUMENT_CHANGE_EVENT: "documentChange",
             FILE_RENAME_EVENT: "fileNameChange",
-            BEFORE_APP_CLOSE: "beforeAppClose"
+            BEFORE_APP_CLOSE: "beforeAppClose",
+            CURSOR_ACTIVITY: "cursorActivity"
         };
 
     PreferencesManager.definePreference("lsp", "object", {}, {
@@ -75,7 +75,7 @@ define(function (require, exports, module) {
     function _withNamespace(event) {
         return event.split(" ")
             .filter((value) => !!value)
-            .map((value) => value + ".language-tools")
+            .map((value) => value + ".lsp")
             .join(" ");
     }
 
@@ -88,6 +88,8 @@ define(function (require, exports, module) {
     }
 
     function _attachEventHandlers() {
+        let editor = EditorManager.getActiveEditor();
+
         //Attach standard listeners
         EditorManager.on(_withNamespace(BRACKETS_EVENTS_NAMES.EDITOR_CHANGE_EVENT), _eventHandler); //(event, current, previous)
         ProjectManager.on(_withNamespace(BRACKETS_EVENTS_NAMES.PROJECT_OPEN_EVENT), _eventHandler); //(event, directory)
@@ -96,6 +98,7 @@ define(function (require, exports, module) {
         DocumentModule.on(_withNamespace(BRACKETS_EVENTS_NAMES.DOCUMENT_CHANGE_EVENT), _eventHandler); //(event, document, changeList)
         DocumentManager.on(_withNamespace(BRACKETS_EVENTS_NAMES.FILE_RENAME_EVENT), _eventHandler); //(event, oldName, newName)
         ProjectManager.on(_withNamespace(BRACKETS_EVENTS_NAMES.BEFORE_APP_CLOSE), _eventHandler); //(event, oldName, newName)
+        editor.on(_withNamespace(BRACKETS_EVENTS_NAMES.CURSOR_ACTIVITY), _eventHandler);
     }
 
     _attachEventHandlers();

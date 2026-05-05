@@ -215,7 +215,8 @@ define(function (require, exports, module) {
             "dirtyFlagChange": [],
             "documentChange": [],
             "fileNameChange": [],
-            "beforeAppClose": []
+            "beforeAppClose": [],
+            "cursorActivity": []
         };
 
         this._init();
@@ -586,6 +587,12 @@ define(function (require, exports, module) {
     LanguageClientWrapper.prototype.addBeforeAppClose = function (handler) {
         if (validateHandler(handler)) {
             this._onEventHandlers["beforeAppClose"].push(handler);
+        }
+    };
+
+    LanguageClientWrapper.prototype.addOnCursorActivityHandler = function (handler) {
+        if (validateHandler(handler)) {
+            this._onEventHandlers["cursorActivity"].push(handler);
         }
     };
 
