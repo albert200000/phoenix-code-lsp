@@ -28,10 +28,12 @@ var nodeURL = require("url"),
     path = require("path");
 
 function pathToUri(filePath) {
-    var newPath = convertWinToPosixPath(filePath);
+    var newPath = convertWinToPosixPath(filePath.replace("/tauri", ""));
+
     if (newPath[0] !== '/') {
         newPath = `/${newPath}`;
     }
+
     return encodeURI(`file://${newPath}`).replace(/[?#]/g, encodeURIComponent);
 }
 

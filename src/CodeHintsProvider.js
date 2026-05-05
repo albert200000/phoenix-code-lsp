@@ -107,6 +107,7 @@ define(function (require, exports, module) {
                 hints = [];
 
             self.query = context.token.string.slice(0, context.pos.ch - context.token.start);
+
             if (msgObj) {
                 var res = msgObj.items || [],
                     trimmedQuery = self.query.trim(),

@@ -83,6 +83,7 @@ define(function (require, exports, module) {
     function filterWithQueryAndMatcher(hints, query) {
         var matchResults = $.map(hints, function (hint) {
             var searchResult = matcher.match(hint.label, query);
+
             if (searchResult) {
                 for (var key in hint) {
                     searchResult[key] = hint[key];
@@ -133,6 +134,7 @@ define(function (require, exports, module) {
                     filteredHints = filterWithQueryAndMatcher(res, self.query);
 
                 StringMatch.basicMatchSort(filteredHints);
+
                 filteredHints.forEach(function (element) {
                     var $fHint = $("<span>")
                         .addClass("brackets-hints");
