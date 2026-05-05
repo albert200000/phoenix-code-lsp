@@ -109,9 +109,11 @@ define(function (require, exports, module) {
         FindReferencesManager.registerFindReferencesProvider(this.refProvider, this._langs, 0);
         FindReferencesManager.setMenuItemStateForLanguage();
 
-        CodeInspection.register(this._langs, {
-            name: "lsp-" + this._langs[0],
-            scanFileAsync: this.lProvider.getInspectionResultsAsync.bind(this.lProvider)
+        this._langs.forEach(lang => {
+            CodeInspection.register([lang], {
+                name: "lsp-" + lang,
+                scanFileAsync: this.lProvider.getInspectionResultsAsync.bind(this.lProvider)
+            });
         });
 
         //Attach plugin for Document Symbols

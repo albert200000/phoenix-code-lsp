@@ -30,25 +30,32 @@ define(function (require, exports, module) {
 
     function uriToPath(uri) {
         var url = PathUtils.parseUrl(uri);
+
         if (url.protocol !== 'file:' || url.pathname === undefined) {
             return uri;
         }
 
         let filePath = decodeURIComponent(url.pathname);
+        filePath = filePath.includes("tauri") ? filePath : ("/tauri" + filePath);
+
         if (brackets.platform === 'win') {
             if (filePath && filePath.includes(":/") && filePath[0] === '/') {
                 filePath = filePath.substr(1);
             }
+
             return filePath;
         }
+
         return filePath;
     }
 
     function pathToUri(filePath) {
         var newPath = convertWinToPosixPath(filePath);
+
         if (newPath[0] !== '/') {
             newPath = `/${newPath}`;
         }
+
         return encodeURI(`file://${newPath}`).replace(/[?#]/g, encodeURIComponent);
     }
 
