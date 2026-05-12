@@ -26,6 +26,10 @@
 define(function (require, exports, module) {
     "use strict";
 
+    var _ = brackets.getModule("thirdparty/lodash"),
+        Editor = brackets.getModule("editor/Editor"),
+        EditorManager = brackets.getModule("editor/EditorManager");
+
     var LanguageManager = brackets.getModule("language/LanguageManager"),
         ProjectManager = brackets.getModule("project/ProjectManager"),
         PathConverters = require("./PathConverters");
@@ -34,6 +38,7 @@ define(function (require, exports, module) {
         this.client = client;
         this.previousProject = "";
         this.currentProject = ProjectManager.getProjectRoot();
+        this.currentHighlights = []; // Track active highlights
     }
 
     EventPropagationProvider.prototype._sendDocumentOpenNotification = function (languageId, doc) {
@@ -149,7 +154,7 @@ define(function (require, exports, module) {
         }
     };
 
-    EventPropagationProvider.prototype.handleAppClose = function (event) {
+    EventPropagationProvider.prototype.handleAppClose = function (_) {
         //Also handles Reload with Extensions
         if (!this.client) {
             return;
@@ -158,9 +163,66 @@ define(function (require, exports, module) {
         this.client.stop();
     };
 
-    EventPropagationProvider.prototype.handleCursorActivity = function (event) {
-        // TODO: symbol highlight request
+    EventPropagationProvider.prototype._clearHighlights = function (editor) {
+        if (!editor) {
+            return;
+        }
+
+        // Clear all existing highlights
+        this.currentHighlights.forEach(function (highlight) {
+            editor._codeMirror.doc.removeLineClass(highlight.from.line, "background", "lsp-highlight");
+        });
+
+        this.currentHighlights = [];
     };
+
+    EventPropagationProvider.prototype.handleCursorActivity = _.debounce(function (_, editor) {
+        if (!this.client || !editor) {
+            return;
+        }
+
+        // Clear previous highlights
+        this._clearHighlights(editor);
+
+        // Get the current cursor position
+        var cursorPos = editor.getCursorPos();
+        var doc = editor.document;
+        var filePath = doc.file._path || doc.file.fullPath;
+        var languageId = LanguageManager.getLanguageForPath(filePath).getId();
+
+        if (!this.client._languages.includes(languageId)) {
+            return;
+        }
+
+        this.client.requestDocumentHighlight({
+            filePath: filePath,
+            cursorPos: cursorPos
+        }).then(function (results) {
+            if (results && results.length > 0) {
+                var self = this;
+                // Convert LSP ranges to CodeMirror format and mark them
+                results.forEach(function (highlight) {
+                    var from = {
+                        line: highlight.range.start.line,
+                        ch: highlight.range.start.character
+                    };
+                    var to = {
+                        line: highlight.range.end.line,
+                        ch: highlight.range.end.character
+                    };
+
+                    // Store the highlight range for later cleanup
+                    self.currentHighlights.push({ from: from, to: to });
+
+                    // Apply highlight using CodeMirror's line class
+                    for (var line = from.line; line <= to.line; line++) {
+                        // TODO: fix this
+                        editor._codeMirror.doc.addLineClass(line, "background", "lsp-highlight");
+                    }
+                }.bind(this));
+            }
+        }.bind(this));
+    }, 250);
 
     function handleProjectFoldersRequest(event) {
         var projectRoot = ProjectManager.getProjectRoot(),

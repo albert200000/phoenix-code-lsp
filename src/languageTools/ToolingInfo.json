@@ -36,6 +36,7 @@
         "JUMP_TO_IMPL": "implementation",
         "FIND_REFERENCES": "references",
         "DOCUMENT_SYMBOLS": "documentSymbols",
-        "PROJECT_SYMBOLS": "projectSymbols"
+        "PROJECT_SYMBOLS": "projectSymbols",
+        "DOCUMENT_HIGHLIGHT": "documentHighlight"
     }
 }

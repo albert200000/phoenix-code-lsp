@@ -45,134 +45,109 @@ function _constructParamsAndRelay(relay, type, params) {
     }
 
     switch (type) {
-    case LanguageClientInfo.toolingInfo.LANGUAGE_SERVICE.CUSTOM_REQUEST:
-        return sendCustomRequest(relay, params.type, params.params);
-    case LanguageClientInfo.toolingInfo.LANGUAGE_SERVICE.CUSTOM_NOTIFICATION:
-        {
-            sendCustomNotification(relay, params.type, params.params);
-            break;
-        }
-    case LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.SHOW_SELECT_MESSAGE:
-    case LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.REGISTRATION_REQUEST:
-    case LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.UNREGISTRATION_REQUEST:
-    case LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.PROJECT_FOLDERS_REQUEST:
-        {
-            _params = {
-                type: type,
-                params: params
-            };
-            return relay(_params);
-        }
-    case LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.SHOW_MESSAGE:
-    case LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.LOG_MESSAGE:
-    case LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.TELEMETRY:
-    case LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.DIAGNOSTICS:
-        {
-            _params = {
-                type: type,
-                params: params
-            };
-            relay(_params);
-            break;
-        }
-    case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_OPENED:
-        {
-            _params = _params || {
-                textDocument: {
-                    uri: Utils.pathToUri(params.filePath),
-                    languageId: params.languageId,
-                    version: 1,
-                    text: params.fileContent
-                }
-            };
-            didOpenTextDocument(relay, _params);
-            break;
-        }
-    case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_CHANGED:
-        {
-            _params = _params || {
-                textDocument: {
-                    uri: Utils.pathToUri(params.filePath),
-                    version: 1
-                },
-                contentChanges: [{
-                    text: params.fileContent
-                }]
-            };
-            didChangeTextDocument(relay, _params);
-            break;
-        }
-    case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_SAVED:
-        {
-            if (!_params) {
+        case LanguageClientInfo.toolingInfo.LANGUAGE_SERVICE.CUSTOM_REQUEST:
+            return sendCustomRequest(relay, params.type, params.params);
+        case LanguageClientInfo.toolingInfo.LANGUAGE_SERVICE.CUSTOM_NOTIFICATION:
+            {
+                sendCustomNotification(relay, params.type, params.params);
+                break;
+            }
+        case LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.SHOW_SELECT_MESSAGE:
+        case LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.REGISTRATION_REQUEST:
+        case LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.UNREGISTRATION_REQUEST:
+        case LanguageClientInfo.toolingInfo.SERVICE_REQUESTS.PROJECT_FOLDERS_REQUEST:
+            {
                 _params = {
+                    type: type,
+                    params: params
+                };
+                return relay(_params);
+            }
+        case LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.SHOW_MESSAGE:
+        case LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.LOG_MESSAGE:
+        case LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.TELEMETRY:
+        case LanguageClientInfo.toolingInfo.SERVICE_NOTIFICATIONS.DIAGNOSTICS:
+            {
+                _params = {
+                    type: type,
+                    params: params
+                };
+                relay(_params);
+                break;
+            }
+        case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_OPENED:
+            {
+                _params = _params || {
+                    textDocument: {
+                        uri: Utils.pathToUri(params.filePath),
+                        languageId: params.languageId,
+                        version: 1,
+                        text: params.fileContent
+                    }
+                };
+                didOpenTextDocument(relay, _params);
+                break;
+            }
+        case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_CHANGED:
+            {
+                _params = _params || {
+                    textDocument: {
+                        uri: Utils.pathToUri(params.filePath),
+                        version: 1
+                    },
+                    contentChanges: [{
+                        text: params.fileContent
+                    }]
+                };
+                didChangeTextDocument(relay, _params);
+                break;
+            }
+        case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_SAVED:
+            {
+                if (!_params) {
+                    _params = {
+                        textDocument: {
+                            uri: Utils.pathToUri(params.filePath)
+                        }
+                    };
+
+                    if (params.fileContent) {
+                        _params['text'] = params.fileContent;
+                    }
+                }
+                didSaveTextDocument(relay, _params);
+                break;
+            }
+        case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_CLOSED:
+            {
+                _params = _params || {
                     textDocument: {
                         uri: Utils.pathToUri(params.filePath)
                     }
                 };
 
-                if (params.fileContent) {
-                    _params['text'] = params.fileContent;
-                }
+                didCloseTextDocument(relay, _params);
+                break;
             }
-            didSaveTextDocument(relay, _params);
-            break;
-        }
-    case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.DOCUMENT_CLOSED:
-        {
-            _params = _params || {
-                textDocument: {
-                    uri: Utils.pathToUri(params.filePath)
-                }
-            };
+        case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.PROJECT_FOLDERS_CHANGED:
+            {
+                var foldersAdded = params.foldersAdded || [],
+                    foldersRemoved = params.foldersRemoved || [];
 
-            didCloseTextDocument(relay, _params);
-            break;
-        }
-    case LanguageClientInfo.toolingInfo.SYNCHRONIZE_EVENTS.PROJECT_FOLDERS_CHANGED:
-        {
-            var foldersAdded = params.foldersAdded || [],
-                foldersRemoved = params.foldersRemoved || [];
+                foldersAdded = Utils.convertToWorkspaceFolders(foldersAdded);
+                foldersRemoved = Utils.convertToWorkspaceFolders(foldersRemoved);
 
-            foldersAdded = Utils.convertToWorkspaceFolders(foldersAdded);
-            foldersRemoved = Utils.convertToWorkspaceFolders(foldersRemoved);
-
-            _params = _params || {
-                event: {
-                    added: foldersAdded,
-                    removed: foldersRemoved
-                }
-            };
-            didChangeWorkspaceFolders(relay, _params);
-            break;
-        }
-    case LanguageClientInfo.toolingInfo.FEATURES.CODE_HINTS:
-        handler = completion;
-        _params = _params || {
-            textDocument: {
-                uri: Utils.pathToUri(params.filePath)
-            },
-            position: Utils.convertToLSPPosition(params.cursorPos)
-        };
-
-        return handler(relay, _params);
-    case LanguageClientInfo.toolingInfo.FEATURES.PARAMETER_HINTS:
-        handler = handler || signatureHelp;
-        _params = _params || {
-            textDocument: {
-                uri: Utils.pathToUri(params.filePath)
-            },
-            position: Utils.convertToLSPPosition(params.cursorPos)
-        };
-
-        return handler(relay, _params);
-    case LanguageClientInfo.toolingInfo.FEATURES.JUMP_TO_DECLARATION:
-        handler = handler || gotoDeclaration;
-    case LanguageClientInfo.toolingInfo.FEATURES.JUMP_TO_DEFINITION:
-        handler = handler || gotoDefinition;
-    case LanguageClientInfo.toolingInfo.FEATURES.JUMP_TO_IMPL:
-        {
-            handler = handler || gotoImplementation;
+                _params = _params || {
+                    event: {
+                        added: foldersAdded,
+                        removed: foldersRemoved
+                    }
+                };
+                didChangeWorkspaceFolders(relay, _params);
+                break;
+            }
+        case LanguageClientInfo.toolingInfo.FEATURES.CODE_HINTS:
+            handler = completion;
             _params = _params || {
                 textDocument: {
                     uri: Utils.pathToUri(params.filePath)
@@ -181,43 +156,79 @@ function _constructParamsAndRelay(relay, type, params) {
             };
 
             return handler(relay, _params);
-        }
-    case LanguageClientInfo.toolingInfo.FEATURES.CODE_HINT_INFO:
-        {
-            return completionItemResolve(relay, params);
-        }
-    case LanguageClientInfo.toolingInfo.FEATURES.FIND_REFERENCES:
-        {
+        case LanguageClientInfo.toolingInfo.FEATURES.PARAMETER_HINTS:
+            handler = handler || signatureHelp;
             _params = _params || {
                 textDocument: {
                     uri: Utils.pathToUri(params.filePath)
                 },
-                position: Utils.convertToLSPPosition(params.cursorPos),
-                context: {
-                    includeDeclaration: params.includeDeclaration
-                }
+                position: Utils.convertToLSPPosition(params.cursorPos)
             };
 
-            return findReferences(relay, _params);
-        }
-    case LanguageClientInfo.toolingInfo.FEATURES.DOCUMENT_SYMBOLS:
-        {
-            _params = _params || {
-                textDocument: {
-                    uri: Utils.pathToUri(params.filePath)
-                }
-            };
+            return handler(relay, _params);
+        case LanguageClientInfo.toolingInfo.FEATURES.JUMP_TO_DECLARATION:
+            handler = handler || gotoDeclaration;
+        case LanguageClientInfo.toolingInfo.FEATURES.JUMP_TO_DEFINITION:
+            handler = handler || gotoDefinition;
+        case LanguageClientInfo.toolingInfo.FEATURES.JUMP_TO_IMPL:
+            {
+                handler = handler || gotoImplementation;
+                _params = _params || {
+                    textDocument: {
+                        uri: Utils.pathToUri(params.filePath)
+                    },
+                    position: Utils.convertToLSPPosition(params.cursorPos)
+                };
 
-            return documentSymbol(relay, _params);
-        }
-    case LanguageClientInfo.toolingInfo.FEATURES.PROJECT_SYMBOLS:
-        {
-            _params = _params || {
-                query: params.query
-            };
+                return handler(relay, _params);
+            }
+        case LanguageClientInfo.toolingInfo.FEATURES.CODE_HINT_INFO:
+            {
+                return completionItemResolve(relay, params);
+            }
+        case LanguageClientInfo.toolingInfo.FEATURES.FIND_REFERENCES:
+            {
+                _params = _params || {
+                    textDocument: {
+                        uri: Utils.pathToUri(params.filePath)
+                    },
+                    position: Utils.convertToLSPPosition(params.cursorPos),
+                    context: {
+                        includeDeclaration: params.includeDeclaration
+                    }
+                };
 
-            return workspaceSymbol(relay, _params);
-        }
+                return findReferences(relay, _params);
+            }
+        case LanguageClientInfo.toolingInfo.FEATURES.DOCUMENT_SYMBOLS:
+            {
+                _params = _params || {
+                    textDocument: {
+                        uri: Utils.pathToUri(params.filePath)
+                    }
+                };
+
+                return documentSymbol(relay, _params);
+            }
+        case LanguageClientInfo.toolingInfo.FEATURES.PROJECT_SYMBOLS:
+            {
+                _params = _params || {
+                    query: params.query
+                };
+
+                return workspaceSymbol(relay, _params);
+            }
+        case LanguageClientInfo.toolingInfo.FEATURES.DOCUMENT_HIGHLIGHT:
+            {
+                _params = _params || {
+                    textDocument: {
+                        uri: Utils.pathToUri(params.filePath)
+                    },
+                    position: Utils.convertToLSPPosition(params.cursorPos)
+                };
+
+                return documentHighlight(relay, _params);
+            }
     }
 }
 
@@ -290,6 +301,10 @@ function documentSymbol(connection, params) {
 
 function workspaceSymbol(connection, params) {
     return connection.sendRequest(protocol.WorkspaceSymbolRequest.type, params);
+}
+
+function documentHighlight(connection, params) {
+    return connection.sendRequest(protocol.DocumentHighlightRequest.type, params);
 }
 
 /**

@@ -108,6 +108,13 @@ define(function (require, exports, module) {
                     }
                     break;
                 }
+            case ToolingInfo.FEATURES.DOCUMENT_HIGHLIGHT:
+                {
+                    if (hasValidProp(params, "filePath")) {
+                        validatedParams = params;
+                    }
+                    break;
+                }
             case ToolingInfo.FEATURES.PROJECT_SYMBOLS:
                 {
                     if (hasValidProp(params, "query") && typeof params.query === "string") {
@@ -401,6 +408,10 @@ define(function (require, exports, module) {
     //documentSymbol
     LanguageClientWrapper.prototype.requestSymbolsForDocument = function (params) {
         return this._request(ToolingInfo.FEATURES.DOCUMENT_SYMBOLS, params);
+    };
+
+    LanguageClientWrapper.prototype.requestDocumentHighlight = function (params) {
+        return this._request(ToolingInfo.FEATURES.DOCUMENT_HIGHLIGHT, params);
     };
 
     /**
